@@ -15,6 +15,22 @@ const router = createRouter({
       },
     },
     {
+      path: '/clientes',
+      name: 'Clientes',
+      component: () => import('../views/Clientes/Clientes.vue'),
+      meta: {
+        title: 'Clientes',
+      },
+    },
+    {
+      path: '/servicios',
+      name: 'Servicios',
+      component: () => import('../views/Servicios/Servicios.vue'),
+      meta: {
+        title: 'Servicios',
+      },
+    },
+    {
       path: '/calendar',
       name: 'Calendar',
       component: () => import('../views/Others/Calendar.vue'),

@@ -278,6 +278,18 @@ const menuGroups = [
           { name: "404 Page", path: "/error-404", pro: false },
         ],
       },
+      {
+        icon: UserCircleIcon,
+        name: "Clientes",
+        path: "/clientes",
+      },
+
+      {
+        icon: UserCircleIcon,
+        name: "Servicios",
+        path: "/servicios",
+      },
+
     ],
   },
   {
