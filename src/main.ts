@@ -10,10 +10,12 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import VueApexCharts from 'vue3-apexcharts'
+import Notifications from '@kyvg/vue3-notification'
 
 const app = createApp(App)
 
 app.use(router)
+app.use(Notifications)
 app.use(VueApexCharts)
 
 app.mount('#app')

@@ -3,8 +3,9 @@
     <PageBreadcrumb :pageTitle="currentPageTitle" />
     <div class="space-y-5 sm:space-y-6">
       <ComponentCard title="Lista de Servicios">
+        <!-- ELEMENTOS USUARIO-->
         <div class="flex items-center justify-end">
-          <button @click="isServicioModal = true" class="edit-button">
+          <button @click="openModal" class="edit-button">
             <svg
               class="fill-current"
               width="18"
@@ -23,15 +24,52 @@
             Nuevo Servicio
           </button>
         </div>
-        <ClientesTable />
-        <Modal v-if="isServicioModal" @close="isServicioModal = false">
+        <!--TABLA SERVICIOS-->
+        <input
+          v-model="filtro"
+          placeholder="Buscar por nombre, categoria, precio"
+          class="w-full max-w-md px-4 py-2 mb-4 border rounded dark:text-white"
+        />
+        <ServiciosTable
+          :servicios="serviciosPaginados"
+          @eliminar="solicitarEliminacion"
+          @editar="editarServicio"
+        />
+        <div class="flex justify-between items-center mt-4">
+          <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-white">
+            Mostrando {{ serviciosPaginados.length }} de {{ serviciosFiltrados.length }} servicios
+          </p>
+
+          <div class="flex gap-2">
+            <Button
+              @click="cambiarPagina(paginaActual - 1)"
+              :disabled="paginaActual === 1"
+              variant="secondary"
+              class="dark:text-white"
+              >Anterior</Button
+            >
+            <span class="text-sm dark:text-white">
+              Página {{ paginaActual }} de {{ totalPaginas }}
+            </span>
+            <Button
+              @click="cambiarPagina(paginaActual + 1)"
+              :disabled="paginaActual === totalPaginas"
+              variant="secondary"
+              class="dark:text-white"
+              >Siguiente</Button
+            >
+          </div>
+        </div>
+
+        <!--MODAL CREACION / EDICION-->
+        <Modal v-if="isModalOpen">
           <template #body>
             <div
               class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
             >
               <!-- close btn -->
               <button
-                @click="isServicioModal = false"
+                @click="isModalOpen = false"
                 class="transition-color absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600 dark:bg-gray-700 dark:bg-white/[0.05] dark:text-gray-400 dark:hover:bg-white/[0.07] dark:hover:text-gray-300"
               >
                 <svg
@@ -58,7 +96,7 @@
                   Detalles sobre el servicio a ofrecer.
                 </p>
               </div>
-              <form class="flex flex-col">
+              <form class="flex flex-col" @submit.prevent="guardarServicio">
                 <div class="custom-scrollbar h-[458px] overflow-y-auto p-2">
                   <div>
                     <h5 class="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
@@ -73,7 +111,7 @@
                           Nombre:
                         </label>
                         <input
-                          v-model="nuevoServicio.nombre"
+                          v-model="servicioEditando.nombre"
                           placeholder="Corte clásico"
                           class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                         />
@@ -87,7 +125,7 @@
                         </label>
                         <input
                           type="number"
-                          v-model="nuevoServicio.precio"                      
+                          v-model="servicioEditando.precio"
                           class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                         />
                       </div>
@@ -100,7 +138,7 @@
                         </label>
                         <input
                           type="input"
-                          value=""
+                          v-model="servicioEditando.duracion"
                           class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                         />
                       </div>
@@ -112,7 +150,7 @@
                           Categoria
                         </label>
                         <select
-                          v-model="nuevoServicio.categoria"
+                          v-model="servicioEditando.categoria"
                           class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
                         >
                           <option value="">Selecciona una categoría</option>
@@ -125,8 +163,6 @@
                     </div>
                   </div>
                   <div class="mt-7">
-                
-
                     <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
                       <div class="col-span-2 lg:col-span-1">
                         <label
@@ -135,12 +171,14 @@
                           Estado
                         </label>
                         <select
-                          v-model="nuevoServicio.estado"
+                          v-model="servicioEditando.status"
                           class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
                         >
-                          <option value="">Selecciona estado</option>
-                          <option value="activo">Activo</option>
-                          <option value="inactivo">Inactivo</option>            
+                          <option value="" class="dark:text-white">
+                            Seleccionar estado cliente
+                          </option>
+                          <option value="1" class="dark:text-white">Activo</option>
+                          <option value="0" class="dark:text-white">Inactivo</option>
                         </select>
                       </div>
 
@@ -151,9 +189,9 @@
                           Detalles
                         </label>
                         <input
+                          v-model="servicioEditando.detalles"
                           type="text"
-                          placeholder="Detalles del servicio"
-                          value=""
+                          placeholder="Detalles del servicio"                     
                           class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                         />
                       </div>
@@ -162,15 +200,14 @@
                 </div>
                 <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
                   <button
-                    @click="isServicioModal = false"
+                    @click="closeModal"
                     type="button"
                     class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] sm:w-auto"
                   >
                     Cerrar
                   </button>
                   <button
-                    @click="saveServicio"
-                    type="button"
+                    type="submit"
                     class="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
                   >
                     Guardar
@@ -180,43 +217,184 @@
             </div>
           </template>
         </Modal>
+        <!--MODAL ELIMINACION-->
+        <Modal v-if="isDeleteModalOpen" @close="closeDeleteModal">
+          <template #body>
+            <div class="bg-white dark:bg-gray-900 rounded-xl p-6 max-w-md mx-auto text-center">
+              <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                ¿Eliminar Servicio?
+              </h3>
+              <p class="text-gray-600 dark:text-gray-400 mb-6">
+                ¿Estás seguro de que deseas eliminar
+                <strong>{{ servicioAEliminar?.nombre }}</strong
+                >? Esta acción no se puede deshacer.
+              </p>
+              <div class="flex justify-center gap-4">
+                <Button variant="secondary" class="dark:text-white" @click="closeDeleteModal"
+                  >Cancelar</Button
+                >
+                <Button variant="destructive" class="dark:text-white" @click="confirmarEliminacion"
+                  >Eliminar</Button
+                >
+              </div>
+            </div>
+          </template>
+        </Modal>
       </ComponentCard>
     </div>
   </AdminLayout>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import ComponentCard from '@/components/common/ComponentCard.vue'
-import ClientesTable from '@/components/clientes/ClientesTable.vue'
 import Modal from '@/components/ui/Modal.vue'
-
+import ServiciosTable from '@/components/servicios/ServiciosTable.vue'
+import HttpService from '@/services/HttpService'
+import { notify } from '@kyvg/vue3-notification'
 const currentPageTitle = ref('Tabla de Servicios')
-
+const isModalOpen = ref(false)
+const isDeleteModalOpen = ref(false)
 const isServicioModal = ref(false)
+const servicioAEliminar = ref(null)
+const servicioEditando = ref(null)
+const servicios = ref([])
+const filtro = ref('')
+const paginaActual = ref(1)
+const porPagina = 10
 
-const servicios = ref([
-  { id: 1, nombre: 'Juan Pérez', telefono: '555-1234567', correo: 'juan@example.com' },
-  { id: 2, nombre: 'María López', telefono: '555-9876543', correo: 'maria@example.com' },
-])
+const serviciosFiltrados = computed(() =>
+  servicios.value.filter((servicio) =>
+    `${servicio.nombre} ${servicio.precio}`.toLowerCase().includes(filtro.value.toLowerCase()),
+  ),
+)
 
-const nuevoServicio = ref({
-  nombre: '',
-  precio: '',
-  estado: '',
-  telefono: '',
-  correo: '',
-  categoria: '',
+const totalPaginas = computed(() => Math.ceil(serviciosFiltrados.value.length / porPagina))
+
+const serviciosPaginados = computed(() => {
+  const inicio = (paginaActual.value - 1) * porPagina
+  return serviciosFiltrados.value.slice(inicio, inicio + porPagina)
 })
 
-function saveServicio() {
-  servicios.value.push({ id: Date.now(), ...nuevoServicio.value })
-  nuevoServicio.value = { nombre: '', precio: '', estado: '', telefono: '', correo: '', categoria: '' }
-  closeModal()
+function cambiarPagina(nueva) {
+  if (nueva >= 1 && nueva <= totalPaginas.value) {
+    paginaActual.value = nueva
+  }
+}
+
+onMounted(() => {
+  cargarServicios()
+})
+
+async function cargarServicios() {
+  try {
+    const data = await HttpService.get('/servicios/obtener.php')
+    servicios.value = data
+  } catch (error) {
+    console.error('Error al cargar servicios:', error)
+  }
+}
+
+function openModal() {
+  servicioEditando.value = { nombre: '', precio: '', duracion: '', status: '' , detalles: ''}
+  isModalOpen.value = true
+}
+
+function closeModal() {
+  isModalOpen.value = false
+  servicioEditando.value = null
+}
+
+async function guardarServicio() {
+  try {
+    if (servicioEditando.value.id) {
+      const response = await HttpService.post('/servicios/editar.php', servicioEditando.value)
+
+      if (response.success) {
+        notify({
+          title: 'Éxito',
+          text: 'Servicio guardado correctamente',
+          duration: 4000,
+          speed: 500,
+        })
+        await cargarServicios()
+        closeModal()
+      } else {
+        notify({
+          title: 'Error',
+          text: 'No se pudo guardar el servicio',
+          type: 'error',
+        })
+      }
+    } else {
+      const response = await HttpService.post('/servicios/crear.php', servicioEditando.value)
+
+      if (response.success) {
+        await cargarServicios()
+        closeModal()
+      } else {
+        notify({
+          title: 'Error',
+          text: 'No se pudo guardar el servicio',
+          type: 'error',
+        })
+      }
+    }
+  } catch (error) {
+    console.error('Error al guardar servicio:', error)
+    alert('Ocurrió un error al guardar el servicio.')
+  }
+}
+
+function editarServicio(servicio) {
+  servicioEditando.value = { ...servicio }
+  isModalOpen.value = true
+}
+function solicitarEliminacion(servicio) {
+  servicioAEliminar.value = servicio
+  isDeleteModalOpen.value = true
+}
+
+function closeDeleteModal() {
+  isDeleteModalOpen.value = false
+  servicioAEliminar.value = null
+}
+
+async function confirmarEliminacion() {
+  try {
+    const response = await HttpService.post('/servicios/eliminar.php', {
+      id: servicioAEliminar.value.id,
+    })
+
+    if (response.success) {
+      notify({
+        title: 'Eliminado',
+        text: 'Servicio desactivado correctamente.',
+        type: 'primary',
+      })
+      await cargarServicios()
+      isDeleteModalOpen.value = false
+    } else {
+      notify({
+        title: 'Error',
+        text: 'No se pudo desactivar el servicio.',
+        type: 'error',
+      })
+    }
+  } catch (error) {
+    console.error('Error al eliminar:', error)
+    notify({
+      title: 'Error',
+      text: 'Ocurrió un error inesperado.',
+      type: 'error',
+    })
+  }
 }
 </script>
+
+<!--ESTILOS VISTA -->
 <style>
 .input-class {
   width: 100%;
