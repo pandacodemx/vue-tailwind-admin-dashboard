@@ -31,6 +31,30 @@ const router = createRouter({
       },
     },
     {
+      path: '/citas/nueva',
+      name: 'Citas',
+      component: () => import('../views/Citas/Citas.vue'),
+      meta: {
+        title: 'Citas',
+      },
+    },
+    {
+      path: '/citas/consulta',
+      name: 'Consulta Citas',
+      component: () => import('../views/Citas/ListCitas.vue'),
+      meta: {
+        title: 'Consulta Citas',
+      },
+    },
+    {
+      path: '/citas/calendario',
+      name: 'Calendario',
+      component: () => import('../views/Citas/Calendario.vue'),
+      meta: {
+        title: 'Calendario',
+      },
+    },
+    {
       path: '/calendar',
       name: 'Calendar',
       component: () => import('../views/Others/Calendar.vue'),

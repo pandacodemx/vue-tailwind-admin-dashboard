@@ -259,10 +259,12 @@ const menuGroups = [
       },
 
       {
-        name: "Forms",
+        name: "Citas",
         icon: ListIcon,
         subItems: [
-          { name: "Form Elements", path: "/form-elements", pro: false },
+          { name: "Agendar Cita", path: "/citas/nueva", pro: false },
+          { name: "Calendario Citas", path: "/citas/calendario", pro: false },
+          { name: "Consultar Citas", path: "/citas/consulta", pro: false },
         ],
       },
       

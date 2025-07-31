@@ -235,6 +235,7 @@ async function guardarCliente() {
         notify({
           title: 'Éxito',
           text: 'Cliente guardado correctamente',
+          type: 'primary',
           duration: 4000,
           speed: 500,
         })
@@ -313,6 +314,7 @@ async function confirmarEliminacion() {
   }
 }
 </script>
+
 <style>
 .input-class {
   width: 100%;
@@ -323,5 +325,12 @@ async function confirmarEliminacion() {
 .modal > div:first-child {
   backdrop-filter: blur(32px);
   -webkit-backdrop-filter: blur(32px);
+}
+.vue-notification.primary {
+  color: #000000;
+}
+
+.vue-notification.error {
+  color: #b91c1c; /* rojo fuerte */
 }
 </style>
