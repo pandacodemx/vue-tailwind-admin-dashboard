@@ -48,6 +48,7 @@
                 :minute-increment="15"
                 format="dd/MM/yyyy HH:mm"
                 placeholder="Selecciona fecha y hora"
+                :disabled-dates="(date) => !esDiaPermitido(date)"
                 auto-apply
                 class="w-full"
               />
@@ -88,13 +89,22 @@ const cita = ref({
   fecha: new Date(),
 })
 
+const horariosAtencion = ref([])
 const clientes = ref([])
 const servicios = ref([])
 
 onMounted(() => {
   cargarClientes()
   cargarServicios()
+  cargarHorarios()
 })
+
+async function cargarHorarios() {
+  const res = await HttpService.get('/configuracion/horarios.php')
+  if (Array.isArray(res)) {
+    horariosAtencion.value = res
+  }
+}
 
 async function cargarClientes() {
   const res = await HttpService.get('/clientes/obtener.php')
@@ -106,7 +116,37 @@ async function cargarServicios() {
   servicios.value = res
 }
 
+function esDiaPermitido(date) {
+  const dia = date.getDay()
+  const horarioDia = horariosAtencion.value.find((h) => h.dia === dia)
+  return horarioDia && horarioDia.activo
+}
+
+
+function esHoraPermitida(date) {
+  const dia = date.getDay() // 0 (Dom) - 6 (Sáb)
+  const horarioDia = horariosAtencion.value.find((h) => h.dia === dia)
+
+  if (!horarioDia || !horarioDia.activo) return false
+
+  const hora =
+    date.getHours().toString().padStart(2, '0') +
+    ':' +
+    date.getMinutes().toString().padStart(2, '0')
+
+  return hora >= horarioDia.desde && hora <= horarioDia.hasta
+}
+
 async function guardarCita() {
+  if (!esHoraPermitida(cita.value.fecha)) {
+    notify({
+      title: 'Horario no válido',
+      text: 'La cita debe estar dentro del horario de atención.',
+      type: 'warn',
+    })
+    return
+  }
+
   try {
     const response = await HttpService.post('/citas/crear.php', cita.value)
     if (response.success) {
@@ -115,8 +155,7 @@ async function guardarCita() {
         text: 'La cita fue guardada correctamente.',
         type: 'success',
       })
-      // Resetear el formulario
-      cita.value = { cliente_id: '', fecha: '', servicios: [], notas: '' }
+      cita.value = { cliente: null, fecha: new Date(), servicios: [] }
     } else {
       notify({
         title: 'Error',
@@ -129,3 +168,9 @@ async function guardarCita() {
   }
 }
 </script>
+
+<style>
+.vue-notification.warn {
+  color: #000000;
+}
+</style>

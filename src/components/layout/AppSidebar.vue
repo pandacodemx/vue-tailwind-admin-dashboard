@@ -287,9 +287,9 @@ const menuGroups = [
     items: [
       {
         icon: PieChartIcon,
-        name: "Charts",
+        name: "Ajustes",
         subItems: [
-          { name: "Line Chart", path: "/line-chart", pro: false },
+          { name: "Horario", path: "/ajustes/horario", pro: false },
           { name: "Bar Chart", path: "/bar-chart", pro: false },
         ],
       },

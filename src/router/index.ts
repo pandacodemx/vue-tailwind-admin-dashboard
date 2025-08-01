@@ -15,6 +15,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/ajustes/horario',
+      name: 'Horario',
+      component: () => import('../views/Configuracion/ConfiguracionGeneral.vue'),
+      meta: {
+        title: 'Horario',
+      },
+    },
+    {
       path: '/clientes',
       name: 'Clientes',
       component: () => import('../views/Clientes/Clientes.vue'),

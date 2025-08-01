@@ -1,0 +1,44 @@
+[
+    {
+        "dia": 0,
+        "activo": false,
+        "desde": "09:00",
+        "hasta": "18:00"
+    },
+    {
+        "dia": 1,
+        "activo": true,
+        "desde": "09:00",
+        "hasta": "14:00"
+    },
+    {
+        "dia": 2,
+        "activo": true,
+        "desde": "09:00",
+        "hasta": "18:00"
+    },
+    {
+        "dia": 3,
+        "activo": true,
+        "desde": "09:00",
+        "hasta": "18:00"
+    },
+    {
+        "dia": 4,
+        "activo": true,
+        "desde": "09:00",
+        "hasta": "18:00"
+    },
+    {
+        "dia": 5,
+        "activo": true,
+        "desde": "09:00",
+        "hasta": "18:00"
+    },
+    {
+        "dia": 6,
+        "activo": true,
+        "desde": "09:00",
+        "hasta": "14:00"
+    }
+]

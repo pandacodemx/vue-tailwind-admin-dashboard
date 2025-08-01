@@ -36,7 +36,20 @@ const calendarOptions = ref({
   selectable: true,
   editable: false,
   eventContent: renderEventoPersonalizado,
-  eventClick: handleEventClick,
+  eventClick: handleEventClick,  
+  selectConstraint: "businessHours",
+  businessHours: [
+    {
+      daysOfWeek: [1, 2, 3, 4, 5], // Lunes a viernes
+      startTime: '09:00',
+      endTime: '18:00',
+    },
+    {
+      daysOfWeek: [6], // Sábados
+      startTime: '09:00',
+      endTime: '14:00',
+    },
+  ],
 })
 
 onMounted(async () => {
