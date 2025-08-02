@@ -1,7 +1,10 @@
 <!-- src/components/citas/CalendarioCitas.vue -->
 <template>
-  <div>
-    <FullCalendar :options="calendarOptions" class="bg-white dark:bg-gray-900 p-4 rounded shadow" />
+  <div class="min-h-[calc(100vh-6rem)] overflow-auto">
+    <FullCalendar
+      :options="calendarOptions"
+      class="bg-white dark:bg-gray-900 p-4 rounded shadow h-full"
+    />
 
     <!-- Modal con detalles -->
     <ModalDetalleCita v-if="modalVisible" :cita="citaSeleccionada" @cerrar="modalVisible = false" />
@@ -17,40 +20,54 @@ import interactionPlugin from '@fullcalendar/interaction'
 import esLocale from '@fullcalendar/core/locales/es'
 import HttpService from '@/services/HttpService'
 import ModalDetalleCita from '@/components/citas/ModalDetalleCita.vue'
+import { notify } from '@kyvg/vue3-notification'
 
 const eventos = ref([])
 const modalVisible = ref(false)
 const citaSeleccionada = ref(null)
+const horariosLaborales = ref([])
 
-const calendarOptions = ref({
-  plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-  initialView: 'timeGridWeek',
-  headerToolbar: {
-    left: 'prev,next today',
-    center: 'title',
-    right: 'dayGridMonth,timeGridWeek,timeGridDay',
-  },
-  locale: esLocale,
-  events: eventos,
-  nowIndicator: true,
-  selectable: true,
-  editable: false,
-  eventContent: renderEventoPersonalizado,
-  eventClick: handleEventClick,  
-  selectConstraint: "businessHours",
-  businessHours: [
-    {
-      daysOfWeek: [1, 2, 3, 4, 5], // Lunes a viernes
-      startTime: '09:00',
-      endTime: '18:00',
+const calendarOptions = ref({})
+
+function configurarCalendarOptions(horarios) {
+  const businessHours = horarios
+    .filter((h) => h.activo)
+    .map((h) => ({
+      daysOfWeek: [h.dia], // 0: domingo, ..., 6: sábado
+      startTime: h.desde,
+      endTime: h.hasta,
+    }))
+
+  const todasLasHoras = horarios
+    .filter((h) => h.activo)
+    .map((h) => [h.desde, h.hasta])
+    .flat()
+
+  const slotMinTime = todasLasHoras.length ? todasLasHoras.sort()[0] : '09:00:00'
+  const slotMaxTime = todasLasHoras.length ? todasLasHoras.sort().reverse()[0] : '18:00:00'
+
+  calendarOptions.value = {
+    plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+    initialView: 'timeGridWeek',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay',
     },
-    {
-      daysOfWeek: [6], // Sábados
-      startTime: '09:00',
-      endTime: '14:00',
-    },
-  ],
-})
+    locale: esLocale,
+    nowIndicator: true,
+    selectable: true,
+    editable: true,
+    eventDrop: handleEventDrop,
+    eventContent: renderEventoPersonalizado,
+    eventClick: handleEventClick,
+    selectConstraint: 'businessHours',
+    businessHours,
+    slotMinTime,
+    slotMaxTime,
+    events: [], // se actualiza después
+  }
+}
 
 onMounted(async () => {
   const citas = await HttpService.get('/citas/listar.php')
@@ -68,7 +85,22 @@ onMounted(async () => {
   }))
 
   calendarOptions.value.events = eventos.value
+
+  const horarios = await HttpService.get('/citas/horarios.php')
+  horariosLaborales.value = horarios
+  configurarCalendarOptions(horarios)
 })
+
+function esHorarioValidoSegunJSON(fecha) {
+  const dia = fecha.getDay() // 0 (domingo) - 6 (sábado)
+  const hora = fecha.toTimeString().substring(0, 5)
+
+  const diaConfig = horariosLaborales.value.find((h) => h.dia === dia)
+
+  if (!diaConfig || !diaConfig.activo) return false
+
+  return hora >= diaConfig.desde && hora < diaConfig.hasta
+}
 
 function calcularFin(fechaInicio, minutosDuracion) {
   const inicio = new Date(fechaInicio)
@@ -122,6 +154,43 @@ function handleEventClick(info) {
 
   modalVisible.value = true
 }
+function handleEventDrop(info) {
+  const id = info.event.id
+  const nuevaFecha = info.event.start
+  const offsetMs = nuevaFecha.getTimezoneOffset() * 60000
+  const fechaLocal = new Date(nuevaFecha.getTime() - offsetMs)
+
+  if (!esHorarioValidoSegunJSON(nuevaFecha)) {
+    notify({
+      title: '⛔ Horario inválido',
+      text: 'La nueva hora está fuera del horario disponible.',
+      type: 'warn',
+    })
+    info.revert()
+    return
+  }
+
+  HttpService.post('/citas/reprogramar.php', {
+    id,
+    nueva_fecha: fechaLocal.toISOString().slice(0, 19).replace('T', ' '),
+  })
+    .then((res) => {
+      if (res.success) {
+        notify({
+          title: 'Cita Reprogramada',
+          text: '✅ Cita reprogramada correctamente',
+          type: 'success',
+        })
+      } else {
+        console.warn('❌ No se pudo reprogramar la cita')
+        info.revert() // Revierte el movimiento en el calendario
+      }
+    })
+    .catch((error) => {
+      console.error('❌ Error al reprogramar cita:', error)
+      info.revert()
+    })
+}
 </script>
 
 <style>
@@ -166,5 +235,11 @@ function handleEventClick(info) {
 .fc-hora {
   color: #555;
   font-size: 0.75rem;
+}
+.vue-notification.success {
+  color: #000000;
+}
+.vue-notification.warn {
+  color: #000000;
 }
 </style>

@@ -1,6 +1,9 @@
 <?php
 require_once '../conexion.php';
 require_once '../cabeceras.php';
+require_once '../includes/auth.php';
+
+requireLogin();
 header('Content-Type: application/json');
 
 $resumen = [
@@ -16,9 +19,19 @@ $resumen = [
 $sqlResumen = "SELECT estado, COUNT(*) AS cantidad FROM citas GROUP BY estado";
 $stmtResumen = $pdo->query($sqlResumen);
 while ($row = $stmtResumen->fetch(PDO::FETCH_ASSOC)) {
-  $estado = $row['estado'];
-  $resumen[$estado] = (int)$row['cantidad'];
-  $resumen['total'] += (int)$row['cantidad'];
+  $estadoOriginal = strtolower($row['estado']); // ejemplo: "Pendiente" → "pendiente"
+
+  $estado = match ($estadoOriginal) {
+    'pendiente' => 'pendientes',
+    'atendida' => 'atendidas',
+    'cancelada' => 'canceladas',
+    default => null,
+  };
+
+  if ($estado) {
+    $resumen[$estado] = (int)$row['cantidad'];
+    $resumen['total'] += (int)$row['cantidad'];
+  }
 }
 
 // 2. Próximas citas

@@ -245,25 +245,19 @@ const menuGroups = [
       {
         icon: GridIcon,
         name: "Dashboard",
-        subItems: [{ name: "Ecommerce", path: "/", pro: false }],
-      },
+        path: "/",       
+      },   
       {
         icon: CalenderIcon,
-        name: "Calendar",
-        path: "/calendar",
-      },
-      {
-        icon: UserCircleIcon,
-        name: "User Profile",
-        path: "/profile",
-      },
+        name: "Calendario Citas",
+        path: "/citas/calendario",       
+      },   
 
       {
         name: "Citas",
         icon: ListIcon,
         subItems: [
-          { name: "Agendar Cita", path: "/citas/nueva", pro: false },
-          { name: "Calendario Citas", path: "/citas/calendario", pro: false },
+          { name: "Agendar Cita", path: "/citas/nueva", pro: false },         
           { name: "Consultar Citas", path: "/citas/consulta", pro: false },
         ],
       },
@@ -283,7 +277,7 @@ const menuGroups = [
     ],
   },
   {
-    title: "Others",
+    title: "Otros",
     items: [
       {
         icon: PieChartIcon,
@@ -292,22 +286,10 @@ const menuGroups = [
           { name: "Horario", path: "/ajustes/horario", pro: false },
           { name: "Bar Chart", path: "/bar-chart", pro: false },
         ],
-      },
-      {
-        icon: BoxCubeIcon,
-        name: "Ui Elements",
-        subItems: [
-          { name: "Alerts", path: "/alerts", pro: false },
-          { name: "Avatars", path: "/avatars", pro: false },
-          { name: "Badge", path: "/badge", pro: false },
-          { name: "Buttons", path: "/buttons", pro: false },
-          { name: "Images", path: "/images", pro: false },
-          { name: "Videos", path: "/videos", pro: false },
-        ],
-      },
+      },     
       {
         icon: PlugInIcon,
-        name: "Authentication",
+        name: "Perfil",
         subItems: [
           { name: "Signin", path: "/signin", pro: false },
           { name: "Signup", path: "/signup", pro: false },

@@ -24,44 +24,48 @@
         </div>
       </div>
     </div>
+    <!-- Paneles: Próximas Citas, Clientes Frecuentes y Gráfica -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- Próximas Citas -->
+      <div class="bg-white dark:bg-gray-900 rounded shadow p-4">
+        <h2 class="text-lg font-semibold mb-2 text-gray-800 dark:text-white">📅 Próximas Citas</h2>
+        <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+          <li v-for="cita in resumen.proximas" :key="cita.id" class="py-2">
+            <p class="text-sm text-gray-700 dark:text-gray-300">
+              <strong>{{ formatearFecha(cita.fecha) }}</strong> - {{ cita.cliente }}<br />
+              <span class="text-xs text-gray-500">Servicios: {{ cita.servicios }}</span>
+              <span
+                class="ml-2 px-2 py-0.5 rounded-full text-xs"
+                :class="{
+                  'bg-yellow-100 text-yellow-800': cita.estado === 'pendiente',
+                  'bg-green-100 text-green-800': cita.estado === 'atendida',
+                  'bg-red-100 text-red-800': cita.estado === 'cancelada',
+                }"
+              >
+                {{ cita.estado }}
+              </span>
+            </p>
+          </li>
+        </ul>
+      </div>
 
-    <!-- Próximas citas -->
-    <div class="bg-white dark:bg-gray-900 rounded shadow p-4">
-      <h2 class="text-lg font-semibold mb-2 text-gray-800 dark:text-white">📅 Próximas Citas</h2>
-      <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-        <li v-for="cita in resumen.proximas" :key="cita.id" class="py-2">
-          <p class="text-sm text-gray-700 dark:text-gray-300">
-            <strong>{{ formatearFecha(cita.fecha) }}</strong>
-            - {{ cita.cliente }} <br />
-            <span class="text-xs text-gray-500">Servicios: {{ cita.servicios }}</span>
-            <span
-              class="ml-2 px-2 py-0.5 rounded-full text-xs"
-              :class="{
-                'bg-yellow-100 text-yellow-800': cita.estado === 'pendiente',
-                'bg-green-100 text-green-800': cita.estado === 'atendida',
-                'bg-red-100 text-red-800': cita.estado === 'cancelada',
-              }"
-            >
-              {{ cita.estado }}
-            </span>
-          </p>
-        </li>
-      </ul>
-    </div>
+      <!-- Clientes Frecuentes -->
+      <div class="bg-white dark:bg-gray-900 rounded shadow p-4">
+        <h2 class="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
+          🏆 Clientes frecuentes
+        </h2>
+        <ul class="divide-y divide-gray-200 dark:divide-gray-700">
+          <li v-for="cliente in resumen.top_clientes" :key="cliente.nombre" class="py-2">
+            <p class="text-sm text-gray-700 dark:text-gray-300">
+              {{ cliente.nombre }} —
+              <span class="text-xs text-gray-500">{{ cliente.total_citas }} citas</span>
+            </p>
+          </li>
+        </ul>
+      </div>
 
-    <!-- Clientes frecuentes -->
-    <div class="bg-white dark:bg-gray-900 rounded shadow p-4">
-      <h2 class="text-lg font-semibold mb-2 text-gray-800 dark:text-white">
-        🏆 Clientes frecuentes
-      </h2>
-      <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-        <li v-for="cliente in resumen.top_clientes" :key="cliente.nombre" class="py-2">
-          <p class="text-sm text-gray-700 dark:text-gray-300">
-            {{ cliente.nombre }} —
-            <span class="text-xs text-gray-500">{{ cliente.total_citas }} citas</span>
-          </p>
-        </li>
-      </ul>
+      <!-- Gráfica -->
+      <GraficaCitas :resumen="resumen" />
     </div>
   </div>
 </template>
@@ -69,6 +73,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import HttpService from '@/services/HttpService'
+import GraficaCitas from '@/components/dashboard/GraficaCitas.vue'
 
 const resumen = ref({
   total: 0,

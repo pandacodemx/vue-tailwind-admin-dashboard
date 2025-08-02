@@ -8,7 +8,7 @@
         <img src="/images/user/owner.jpg" alt="User" />
       </span>
 
-      <span class="block mr-1 font-medium text-theme-sm">Musharof </span>
+      <span class="block mr-1 font-medium text-theme-sm">{{ usuario?.nombre || 'Usuario' }}</span>
 
       <ChevronDownIcon :class="{ 'rotate-180': dropdownOpen }" />
     </button>
@@ -20,10 +20,10 @@
     >
       <div>
         <span class="block font-medium text-gray-700 text-theme-sm dark:text-gray-400">
-          Musharof Chowdhury
+          {{ usuario?.nombre || 'Usuario' }}
         </span>
         <span class="mt-0.5 block text-theme-xs text-gray-500 dark:text-gray-400">
-          randomuser@pimjo.com
+          {{ usuario?.email }}
         </span>
       </div>
 
@@ -64,6 +64,20 @@ import { ref, onMounted, onUnmounted } from 'vue'
 
 const dropdownOpen = ref(false)
 const dropdownRef = ref(null)
+const usuario = ref(null)
+
+onMounted(() => {
+  const data = localStorage.getItem('usuario')
+  if (data) {
+    usuario.value = JSON.parse(data)
+  }
+})
+
+const signOut = () => {
+  localStorage.removeItem('usuario')
+  usuario.value = null
+  closeDropdown()
+}
 
 const menuItems = [
   { href: '/profile', icon: UserCircleIcon, text: 'Edit profile' },
@@ -77,12 +91,6 @@ const toggleDropdown = () => {
 
 const closeDropdown = () => {
   dropdownOpen.value = false
-}
-
-const signOut = () => {
-  // Implement sign out logic here
-  console.log('Signing out...')
-  closeDropdown()
 }
 
 const handleClickOutside = (event) => {
