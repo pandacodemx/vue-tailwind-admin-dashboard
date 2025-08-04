@@ -10,10 +10,10 @@
               <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Nombre</p>
             </th>
             <th class="px-5 py-3 text-left w-2/11 sm:px-6">
-              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Telefono</p>
+              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Precio</p>
             </th>
             <th class="px-5 py-3 text-left w-2/11 sm:px-6">
-              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Correo</p>
+              <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Inventario</p>
             </th>
             <th class="px-5 py-3 text-left w-2/11 sm:px-6">
               <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Estado</p>
@@ -25,29 +25,29 @@
         </thead>
         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
           <tr
-            v-for="cliente in clientes"
-            :key="cliente.id"
+            v-for="producto in productos"
+            :key="producto.id"
             class="border-t border-gray-100 dark:border-gray-800"
           >
             <td class="px-5 py-4 sm:px-6">
               <div class="flex items-center gap-3">                
                 <div>
                   <span class="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                    {{ cliente.nombre }}
+                    {{ producto.nombre }}
                   </span>
                   <span class="block text-gray-500 text-theme-xs dark:text-gray-400">
-                    {{ cliente.correo }}
+                    Categoria: {{ producto.categoria }}
                   </span>
                 </div>
               </div>
             </td>
             <td class="px-5 py-4 sm:px-6">
-              <p class="text-gray-500 text-theme-sm dark:text-gray-400">{{ cliente.telefono }}</p>
+              <p class="text-gray-500 text-theme-sm dark:text-gray-600"> ${{ producto.precio }}</p>
             </td>
             <td class="px-5 py-4 sm:px-6">
               <div class="flex -space-x-2">
                 <span class="block text-gray-500 text-theme-xs dark:text-gray-400">
-                  {{ cliente.correo }}
+                  {{ producto.stock }}
                 </span>
               </div>
             </td>
@@ -57,21 +57,21 @@
                   'rounded-full px-2 py-0.5 text-theme-xs font-medium',
                   {
                     'bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-500':
-                      cliente.status === '1',
+                      producto.status === 'Activo',
                     'bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400':
-                      cliente.status === 'Inactivo',
+                    producto.status === 'Inactivo',
                     'bg-error-50 text-error-700 dark:bg-error-500/15 dark:text-error-500':
-                      cliente.status === 'Error',
+                    producto.status === 'Error',
                   },
                 ]"
               >
-                {{ cliente.status }}
+                {{ producto.status }}
               </span>
             </td>
             <td class="px-5 py-4 sm:px-6 flex items-center gap-2">
-              <button @click="$emit('editar', cliente)" title="Editar" class="dark:text-white">✏️</button>
+              <button @click="$emit('editar', producto)" title="Editar" class="dark:text-white">✏️</button>
 
-              <button @click="$emit('eliminar', cliente)" class="text-red-500 hover:underline dark:text-white">
+              <button @click="$emit('eliminar', producto)" class="text-red-500 hover:underline dark:text-white">
                 🗑️
               </button>
             </td>
@@ -84,7 +84,7 @@
 
 <script setup>
 defineProps({
-  clientes: {
+  productos: {
     type: Array,
     required: true
   }

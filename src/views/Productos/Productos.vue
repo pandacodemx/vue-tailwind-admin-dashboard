@@ -10,18 +10,17 @@
         </div>
         <input
           v-model="filtro"
-          placeholder="Buscar por nombre, teléfono o correo"
+          placeholder="Buscar por nombre o categoria"
           class="w-full max-w-md px-4 py-2 mb-4 border rounded dark:text-white"
         />
-
-        <ClientesTable
-          :clientes="clientesPaginados"
-          @editar="editarCliente"
+        <ProductosTable
+          :productos="productosPaginados"
+          @editar="editarProduto"
           @eliminar="solicitarEliminacion"
         />
         <div class="flex justify-between items-center mt-4">
           <p class="text-sm text-gray-500 dark:text-gray-400 dark:text-white">
-            Mostrando {{ clientesPaginados.length }} de {{ clientesFiltrados.length }} clientes
+            Mostrando {{ productosPaginados.length }} de {{ productosFiltrados.length }} productos
           </p>
 
           <div class="flex gap-2">
@@ -30,8 +29,8 @@
               :disabled="paginaActual === 1"
               variant="secondary"
               class="dark:text-white"
-              >Anterior</Button
-            >
+              ><ChevronLeftIcon
+            /></Button>
             <span class="text-sm dark:text-white">
               Página {{ paginaActual }} de {{ totalPaginas }}
             </span>
@@ -40,8 +39,8 @@
               :disabled="paginaActual === totalPaginas"
               variant="secondary"
               class="dark:text-white"
-              >Siguiente</Button
-            >
+              ><ChevronRightIcon
+            /></Button>
           </div>
         </div>
         <Modal v-if="isModalOpen">
@@ -69,23 +68,31 @@
                   />
                 </svg>
               </button>
-              <h3 class="text-lg font-medium mb-4 dark:text-white">Registrar Nuevo Cliente</h3>
-              <form @submit.prevent="guardarCliente" class="space-y-4">
+              <h3 class="text-lg font-medium mb-4 dark:text-white">Registrar Producto Nuevo</h3>
+              <form @submit.prevent="guardarProducto" class="space-y-4">
                 <input
-                  v-model="clienteEditando.nombre"
+                  v-model="productoEditando.nombre"
                   placeholder="Nombre"
                   required
                   class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                 />
                 <input
-                  v-model="clienteEditando.telefono"
-                  placeholder="Teléfono"
+                  v-model="productoEditando.precio"
+                  placeholder="Precio"
                   required
                   class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                 />
+
+                <textarea
+                  v-model="productoEditando.descripcion"
+                  placeholder="Detalles del producto"
+                  rows="5"
+                  class="dark:bg-dark-900 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 resize-none"
+                />
+
                 <div>
                   <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
-                    Email
+                    Categoria
                   </label>
                   <div class="relative">
                     <span
@@ -107,17 +114,43 @@
                       </svg>
                     </span>
                     <input
-                      v-model="clienteEditando.correo"
-                      type="email"
+                      v-model="productoEditando.categoria"
                       required
-                      placeholder="info@gmail.com"
+                      placeholder="Shampoo / Aceites / Etc."
                       class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 pl-[62px] text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                     />
                   </div>
-                </div>                
-                <select v-model="clienteEditando.status" class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800">
-                  <option value="" class="dark:text-white">Seleccionar estado cliente</option>
-                  <option value="1" class="dark:text-white">Activo</option>
+                </div>
+
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    Stock
+                  </label>
+                  <input
+                    v-model="productoEditando.stock"
+                    placeholder="Stock"
+                    required
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                  />
+                </div>
+                <div>
+                  <label class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+                    Stock Minimo
+                  </label>
+
+                  <input
+                    v-model="productoEditando.stock_minimo"
+                    placeholder="Stock Minimo"
+                    required
+                    class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                  />
+                </div>
+
+                <select
+                  v-model="productoEditando.activo"
+                  class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
+                >
+                  <option value="1" class="dark:text-white" selected>Activo</option>
                   <option value="0" class="dark:text-white">Inactivo</option>
                 </select>
                 <div class="flex justify-end space-x-2">
@@ -136,13 +169,13 @@
         </Modal>
         <Modal v-if="isDeleteModalOpen" @close="closeDeleteModal" class="">
           <template #body>
-            <div class="bg-white dark:bg-gray-900 rounded-xl p-6 max-w-md mx-auto text-center ">
+            <div class="bg-white dark:bg-gray-900 rounded-xl p-6 max-w-md mx-auto text-center">
               <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-                ¿Eliminar cliente?
+                ¿Eliminar producto?
               </h3>
               <p class="text-gray-600 dark:text-gray-400 mb-6">
                 ¿Estás seguro de que deseas eliminar a
-                <strong>{{ clienteAEliminar?.nombre }}</strong
+                <strong>{{ productoAEliminar?.nombre }}</strong
                 >? Esta acción no se puede deshacer.
               </p>
               <div class="flex justify-center gap-4">
@@ -163,11 +196,11 @@
 
 <script setup>
 import { onMounted, ref, computed } from 'vue'
-import { UserCircleIcon } from '@/icons'
+import { UserCircleIcon, ChevronRightIcon, ChevronLeftIcon } from '@/icons'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import ComponentCard from '@/components/common/ComponentCard.vue'
-import ClientesTable from '@/components/clientes/ClientesTable.vue'
+import ProductosTable from '@/components/productos/ProductosTable.vue'
 import Button from '@/components/ui/Button.vue'
 import Modal from '@/components/ui/Modal.vue'
 import HttpService from '@/services/HttpService'
@@ -176,26 +209,24 @@ import { notify } from '@kyvg/vue3-notification'
 const currentPageTitle = ref('Venta de Productos')
 const isModalOpen = ref(false)
 const isDeleteModalOpen = ref(false)
-const clienteAEliminar = ref(null)
-const clienteEditando = ref(null)
-const clientes = ref([])
+const productoAEliminar = ref(null)
+const productoEditando = ref(null)
+const productos = ref([])
 const filtro = ref('')
 const paginaActual = ref(1)
 const porPagina = 10
 
-const clientesFiltrados = computed(() =>
-  clientes.value.filter((cliente) =>
-    `${cliente.nombre} ${cliente.telefono} ${cliente.correo}`
-      .toLowerCase()
-      .includes(filtro.value.toLowerCase()),
+const productosFiltrados = computed(() =>
+  productos.value.filter((producto) =>
+    `${producto.nombre} ${producto.categoria}`.toLowerCase().includes(filtro.value.toLowerCase()),
   ),
 )
 
-const totalPaginas = computed(() => Math.ceil(clientesFiltrados.value.length / porPagina))
+const totalPaginas = computed(() => Math.ceil(productosFiltrados.value.length / porPagina))
 
-const clientesPaginados = computed(() => {
+const productosPaginados = computed(() => {
   const inicio = (paginaActual.value - 1) * porPagina
-  return clientesFiltrados.value.slice(inicio, inicio + porPagina)
+  return productosFiltrados.value.slice(inicio, inicio + porPagina)
 })
 
 function cambiarPagina(nueva) {
@@ -205,102 +236,102 @@ function cambiarPagina(nueva) {
 }
 
 onMounted(() => {
-  cargarClientes()
+  cargarProductos()
 })
 
-async function cargarClientes() {
+async function cargarProductos() {
   try {
-    const data = await HttpService.get('/clientes/obtener.php')
-    clientes.value = data
+    const data = await HttpService.get('/productos/obtener.php')
+    productos.value = data
   } catch (error) {
     console.error('Error al cargar clientes:', error)
   }
 }
 function openModal() {
-  clienteEditando.value = { nombre: '', telefono: '', correo: '', status: '' }
+  productoEditando.value = { nombre: '', telefono: '', correo: '', status: '' }
   isModalOpen.value = true
 }
 
 function closeModal() {
   isModalOpen.value = false
-  clienteEditando.value = null
+  productoEditando.value = null
 }
 
-async function guardarCliente() {
+async function guardarProducto() {
   try {
-    if (clienteEditando.value.id) {
-      const response = await HttpService.post('/clientes/editar.php', clienteEditando.value)
+    if (productoEditando.value.id) {
+      const response = await HttpService.post('/productos/editar.php', productoEditando.value)
 
       if (response.success) {
         notify({
           title: 'Éxito',
-          text: 'Cliente guardado correctamente',
+          text: 'Producto guardado correctamente',
           type: 'primary',
           duration: 4000,
           speed: 500,
         })
-        await cargarClientes()
+        await cargarProductos()
         closeModal()
       } else {
         notify({
           title: 'Error',
-          text: 'No se pudo guardar el cliente',
+          text: 'No se pudo guardar el producto',
           type: 'error',
         })
       }
     } else {
-      const response = await HttpService.post('/clientes/crear.php', clienteEditando.value)
+      const response = await HttpService.post('/productos/crear.php', productoEditando.value)
 
       if (response.success) {
-        await cargarClientes()
+        await cargarProductos()
         closeModal()
       } else {
         notify({
           title: 'Error',
-          text: 'No se pudo guardar el cliente',
+          text: 'No se pudo guardar el producto',
           type: 'error',
         })
       }
     }
   } catch (error) {
-    console.error('Error al guardar cliente:', error)
-    alert('Ocurrió un error al guardar el cliente.')
+    console.error('Error al guardar producto:', error)
+    alert('Ocurrió un error al guardar el producto.')
   }
 }
 
-function editarCliente(cliente) {
-  clienteEditando.value = { ...cliente }
+function editarProduto(producto) {
+  productoEditando.value = { ...producto }
   isModalOpen.value = true
 }
 
 function solicitarEliminacion(cliente) {
-  clienteAEliminar.value = cliente
+  productoAEliminar.value = cliente
   isDeleteModalOpen.value = true
 }
 
 function closeDeleteModal() {
   isDeleteModalOpen.value = false
-  clienteAEliminar.value = null
+  productoAEliminar.value = null
 }
 
 async function confirmarEliminacion() {
   try {
-    const response = await HttpService.post('/clientes/eliminar.php', {
-      id: clienteAEliminar.value.id,
+    const response = await HttpService.post('/productos/eliminar.php', {
+      id: productoAEliminar.value.id,
     })
 
     if (response.success) {
       notify({
         title: 'Eliminado',
-        text: 'Cliente desactivado correctamente.',
+        text: 'Producto desactivado correctamente.',
         type: 'primary',
       })
-      await cargarClientes()
+      await cargarProductos()
       isDeleteModalOpen.value = false
     } else {
       notify({
         title: 'Error',
-        text: 'No se pudo desactivar el cliente.',
+        text: 'No se pudo desactivar el producto.',
         type: 'error',
       })
     }

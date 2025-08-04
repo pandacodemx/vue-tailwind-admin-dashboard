@@ -8,7 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // Cabeceras de seguridad y CORS
 $allowed_origins = [
-    'http://localhost:5174',
+    'http://localhost:5173',
     'https://tusistema.com', 
 ];
 

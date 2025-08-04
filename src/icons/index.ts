@@ -25,6 +25,7 @@ import FolderIcon from "./FolderIcon.vue";
 import SettingsIcon from "./SettingsIcon.vue";
 import HomeIcon from "./HomeIcon.vue";
 import ChevronRightIcon from "./ChevronRightIcon.vue";
+import ChevronLeftIcon from "./ChevronLeftIcon.vue";
 import BoxIcon from "./BoxIcon.vue";
 import ErrorHexaIcon from "./ErrorHexaIcon.vue";
 import Calendar2Line from "./Calendar2Line.vue";
@@ -64,6 +65,7 @@ export {
   PaperclipIcon,
   BoxIcon,
   ChevronRightIcon,
+  ChevronLeftIcon,
   GridIcon,
   BoxCubeIcon,
   CalenderIcon,

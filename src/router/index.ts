@@ -71,6 +71,22 @@ const router = createRouter({
       },
     },
     {
+      path: '/ventas/nueva',
+      name: 'Venta Nueva',
+      component: () => import('../views/Ventas/Ventas.vue'),
+      meta: {
+        title: 'Venta Nueva',
+      },
+    },
+    {
+      path: '/ventas/consultas',
+      name: 'Consulta Ventas',
+      component: () => import('../views/Ventas/Ventas_Consulta.vue'),
+      meta: {
+        title: 'Consulta Ventas',
+      },
+    },
+    {
       path: '/profile',
       name: 'Profile',
       component: () => import('../views/Others/UserProfile.vue'),

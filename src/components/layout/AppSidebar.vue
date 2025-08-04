@@ -214,24 +214,18 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
-
 import {
   GridIcon,
   CalenderIcon,
-  UserCircleIcon,
-  ChatIcon,
-  MailIcon,
-  DocsIcon,
+  UserCircleIcon, 
   PieChartIcon,
   ChevronDownIcon,
-  HorizontalDots,
-  PageIcon,
-  TableIcon,
+  HorizontalDots, 
   ListIcon,
   PlugInIcon,
+  ArchiveIcon
 } from "../../icons";
 import SidebarWidget from "./SidebarWidget.vue";
-import BoxCubeIcon from "@/icons/BoxCubeIcon.vue";
 import { useSidebar } from "@/composables/useSidebar";
 
 const route = useRoute();
@@ -277,6 +271,25 @@ const menuGroups = [
     ],
   },
   {
+    title: "Tienda",
+    items: [
+      {
+        icon: ArchiveIcon,
+        name: "Productos",
+        path: "/productos",
+      },     
+      {
+        icon: PlugInIcon,
+        name: "Ventas",
+        subItems: [
+          { name: "Nueva", path: "/ventas/nueva", pro: false },
+          { name: "Consultar", path: "/ventas/consultas", pro: false },
+        ],
+      },
+    
+    ],
+  },
+  {
     title: "Otros",
     items: [
       {
@@ -284,18 +297,10 @@ const menuGroups = [
         name: "Ajustes",
         subItems: [
           { name: "Horario", path: "/ajustes/horario", pro: false },
-          { name: "Bar Chart", path: "/bar-chart", pro: false },
+          { name: "Perfil", path: "/ajustes/perfil", pro: false },
         ],
       },     
-      {
-        icon: PlugInIcon,
-        name: "Perfil",
-        subItems: [
-          { name: "Signin", path: "/signin", pro: false },
-          { name: "Signup", path: "/signup", pro: false },
-        ],
-      },
-      // ... Add other menu items here
+      
     ],
   },
 ];

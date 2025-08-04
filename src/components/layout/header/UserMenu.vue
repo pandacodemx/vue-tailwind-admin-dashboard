@@ -50,7 +50,7 @@
         <LogoutIcon
           class="text-gray-500 group-hover:text-gray-700 dark:group-hover:text-gray-300"
         />
-        Sign out
+        Cerrar Sesión
       </router-link>
     </div>
     <!-- Dropdown End -->
@@ -90,9 +90,8 @@ const signOut = async () => {
 }
 
 const menuItems = [
-  { href: '/profile', icon: UserCircleIcon, text: 'Edit profile' },
-  { href: '/chat', icon: SettingsIcon, text: 'Account settings' },
-  { href: '/profile', icon: InfoCircleIcon, text: 'Support' },
+  { href: '/profile', icon: UserCircleIcon, text: 'Editar Perfil' },
+  { href: '/profile', icon: InfoCircleIcon, text: 'Soporte' },
 ]
 
 const toggleDropdown = () => {
