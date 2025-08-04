@@ -1,10 +1,8 @@
 <!-- src/components/citas/CalendarioCitas.vue -->
 <template>
   <div class="min-h-[calc(100vh-6rem)] overflow-auto">
-    <FullCalendar
-      :options="calendarOptions"
-      class="bg-white dark:bg-gray-900 p-4 rounded shadow h-full"
-    />
+    <FullCalendar v-if="calendarOptions && calendarOptions.initialView" :options="calendarOptions"
+      class="bg-white dark:bg-gray-900 p-4 rounded shadow h-full" />
 
     <!-- Modal con detalles -->
     <ModalDetalleCita v-if="modalVisible" :cita="citaSeleccionada" @cerrar="modalVisible = false" />
@@ -33,7 +31,7 @@ function configurarCalendarOptions(horarios) {
   const businessHours = horarios
     .filter((h) => h.activo)
     .map((h) => ({
-      daysOfWeek: [h.dia], // 0: domingo, ..., 6: sábado
+      daysOfWeek: [h.dia],
       startTime: h.desde,
       endTime: h.hasta,
     }))
@@ -65,9 +63,10 @@ function configurarCalendarOptions(horarios) {
     businessHours,
     slotMinTime,
     slotMaxTime,
-    events: [], // se actualiza después
+    events: eventos.value, 
   }
 }
+
 
 onMounted(async () => {
   const citas = await HttpService.get('/citas/listar.php')
@@ -84,12 +83,12 @@ onMounted(async () => {
     notas: cita.notas,
   }))
 
-  calendarOptions.value.events = eventos.value
-
-  const horarios = await HttpService.get('/citas/horarios.php')
+  const horarios = await HttpService.get('/configuracion/horarios.php')
   horariosLaborales.value = horarios
+
   configurarCalendarOptions(horarios)
 })
+
 
 function esHorarioValidoSegunJSON(fecha) {
   const dia = fecha.getDay() // 0 (domingo) - 6 (sábado)
@@ -182,7 +181,11 @@ function handleEventDrop(info) {
           type: 'success',
         })
       } else {
-        console.warn('❌ No se pudo reprogramar la cita')
+         notify({
+          title: 'Cita Reprogramada',
+          text: '❌ No se pudo reprogramar la cita',
+          type: 'error',
+        })
         info.revert() // Revierte el movimiento en el calendario
       }
     })
@@ -195,8 +198,10 @@ function handleEventDrop(info) {
 
 <style>
 .fc-timegrid-slot {
-  height: 3rem !important; /* o 48px, puedes ajustar */
+  height: 3rem !important;
+  /* o 48px, puedes ajustar */
 }
+
 .fc-event-title {
   white-space: normal !important;
   overflow: visible !important;
@@ -204,16 +209,19 @@ function handleEventDrop(info) {
   font-size: 0.85rem;
   line-height: 1.1rem;
 }
+
 .fc-event {
   padding: 4px 6px !important;
   border-radius: 0.5rem;
   font-weight: 500;
   font-size: 0.875rem;
 }
+
 .fc-timegrid-event .fc-event-time {
   font-weight: bold;
   margin-right: 6px;
 }
+
 .fc-custom-event {
   display: flex;
   flex-direction: column;
@@ -236,9 +244,11 @@ function handleEventDrop(info) {
   color: #555;
   font-size: 0.75rem;
 }
+
 .vue-notification.success {
   color: #000000;
 }
+
 .vue-notification.warn {
   color: #000000;
 }

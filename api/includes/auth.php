@@ -1,9 +1,7 @@
 <?php
-session_start();
-
-/**
- * Verifica que exista una sesión iniciada.
- */
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 function requireLogin() {
     if (!isset($_SESSION['usuario'])) {
         http_response_code(401);

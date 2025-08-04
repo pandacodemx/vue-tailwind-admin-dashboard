@@ -1,0 +1,8 @@
+<?php
+header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: http://localhost:5174"); 
+
+$apiUrl = 'https://frasedeldia.azurewebsites.net/api/phrase';
+
+$response = file_get_contents($apiUrl);
+echo $response;

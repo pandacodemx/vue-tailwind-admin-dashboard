@@ -62,12 +62,12 @@ const router = createRouter({
         title: 'Calendario',
       },
     },
-    {
-      path: '/calendar',
-      name: 'Calendar',
-      component: () => import('../views/Others/Calendar.vue'),
+  {
+      path: '/productos',
+      name: 'Productos',
+      component: () => import('../views/Productos/Productos.vue'),
       meta: {
-        title: 'Calendar',
+        title: 'Productos',
       },
     },
     {
@@ -178,14 +178,6 @@ const router = createRouter({
       component: () => import('../views/Auth/Signin.vue'),
       meta: {
         title: 'Signin',
-      },
-    },
-    {
-      path: '/signup',
-      name: 'Signup',
-      component: () => import('../views/Auth/Signup.vue'),
-      meta: {
-        title: 'Signup',
       },
     },
   ],

@@ -1,6 +1,5 @@
 <?php
-header('Content-Type: application/json');
-require_once '../cabeceras.php';
+require_once '../includes/secure_api.php';
 
 // ESTE ARCHIVO RETORNA LOS HORARIOS DE ATENCION GUARDADIOS, SI NO EXISTE DEVUELVE HORARIOS POR DEFECTO
 $archivo = __DIR__ . '/horarios.json';

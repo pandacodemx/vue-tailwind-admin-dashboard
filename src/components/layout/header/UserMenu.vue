@@ -61,7 +61,10 @@
 import { UserCircleIcon, ChevronDownIcon, LogoutIcon, SettingsIcon, InfoCircleIcon } from '@/icons'
 import { RouterLink } from 'vue-router'
 import { ref, onMounted, onUnmounted } from 'vue'
+import HttpService from '@/services/HttpService'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const dropdownOpen = ref(false)
 const dropdownRef = ref(null)
 const usuario = ref(null)
@@ -73,10 +76,17 @@ onMounted(() => {
   }
 })
 
-const signOut = () => {
+const signOut = async () => {
+  try {
+    await HttpService.get('/auth/logout.php') 
+  } catch (e) {
+    console.warn('⚠️ Error al cerrar sesión en backend', e)
+  }
+
   localStorage.removeItem('usuario')
   usuario.value = null
   closeDropdown()
+  router.push('/signin')
 }
 
 const menuItems = [

@@ -2,10 +2,10 @@
   <AdminLayout>
     <PageBreadcrumb :pageTitle="currentPageTitle" />
     <div class="space-y-5 sm:space-y-6">
-      <ComponentCard title="Lista de Clientes">
+      <ComponentCard title="Lista de Productos">
         <div class="flex items-center justify-end">
           <Button size="sm" variant="primary" :endIcon="UserCircleIcon" @click="openModal">
-            Registrar Cliente
+            Nuevo Producto
           </Button>
         </div>
         <input
@@ -173,7 +173,7 @@ import Modal from '@/components/ui/Modal.vue'
 import HttpService from '@/services/HttpService'
 import { notify } from '@kyvg/vue3-notification'
 
-const currentPageTitle = ref('Tabla de Clientes')
+const currentPageTitle = ref('Venta de Productos')
 const isModalOpen = ref(false)
 const isDeleteModalOpen = ref(false)
 const clienteAEliminar = ref(null)

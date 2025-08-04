@@ -1,10 +1,6 @@
 <?php
-require_once '../conexion.php';
-require_once '../cabeceras.php';
-require_once '../includes/auth.php';
 
-requireLogin();
-header('Content-Type: application/json');
+require_once '../includes/secure_api.php';
 
 $resumen = [
   'total' => 0,

@@ -1,6 +1,5 @@
 <?php
-require_once '../conexion.php';
-require_once '../cabeceras.php';
+require_once '../includes/secure_api.php';
 
 $stmt = $pdo->query("
   SELECT c.id, c.fecha, c.estado, c.notas, cl.nombre AS cliente_nombre

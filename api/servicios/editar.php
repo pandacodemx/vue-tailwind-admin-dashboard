@@ -1,6 +1,5 @@
 <?php
-require_once '../cabeceras.php';
-require_once '../conexion.php';
+require_once '../includes/secure_api.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 
