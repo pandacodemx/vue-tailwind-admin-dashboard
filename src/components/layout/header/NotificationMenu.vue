@@ -37,7 +37,7 @@
       <div
         class="flex items-center justify-between pb-3 mb-3 border-b border-gray-100 dark:border-gray-800"
       >
-        <h5 class="text-lg font-semibold text-gray-800 dark:text-white/90">Notification</h5>
+        <h5 class="text-lg font-semibold text-gray-800 dark:text-white/90">Notificaciones</h5>
 
         <button @click="closeDropdown" class="text-gray-500 dark:text-gray-400">
           <svg
@@ -59,9 +59,19 @@
       </div>
 
       <ul class="flex flex-col h-auto overflow-y-auto custom-scrollbar">
-        <li v-for="notification in notifications" :key="notification.id" @click="handleItemClick">
+        <li
+          v-for="notification in notifications"
+          :key="notification.id"
+          @click="handleItemClick(notification)"
+        >
           <a
-            class="flex gap-3 rounded-lg border-b border-gray-100 p-3 px-4.5 py-3 hover:bg-gray-100 dark:border-gray-800 dark:hover:bg-white/5"
+            :class="[
+              'flex gap-3 rounded-lg border-b p-3 px-4.5 py-3',
+              'dark:border-gray-800 dark:hover:bg-white/5 hover:bg-gray-100',
+              notification.leido
+                ? 'bg-white dark:bg-transparent'
+                : 'bg-orange-50 dark:bg-orange-900/20',
+            ]"
             href="#"
           >
             <span class="relative block w-full h-10 rounded-full z-1 max-w-10">
@@ -93,13 +103,13 @@
         </li>
       </ul>
 
-      <router-link
-        to="#"
-        class="mt-3 flex justify-center rounded-lg border border-gray-300 bg-white p-3 text-theme-sm font-medium text-gray-700 shadow-theme-xs hover:bg-gray-50 hover:text-gray-800 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:hover:text-gray-200"
-        @click="handleViewAllClick"
+      <button
+        v-if="notifications.some((n) => n.leido)"
+        @click="eliminarLeidas"
+        class="mt-3 w-full rounded-lg border border-red-300 bg-red-50 text-red-700 px-4 py-2 text-sm hover:bg-red-100 dark:border-red-700 dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-900/40"
       >
-        View All Notification
-      </router-link>
+        Eliminar notificaciones leídas
+      </button>
     </div>
     <!-- Dropdown End -->
   </div>
@@ -107,95 +117,18 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { RouterLink } from 'vue-router'
+import { useNotifications } from '@/composables/useNotifications'
 
 const dropdownOpen = ref(false)
-const notifying = ref(true)
 const dropdownRef = ref(null)
 
-const notifications = ref([
-  {
-    id: 1,
-    userName: 'Terry Franci',
-    userImage: '/images/user/user-02.jpg',
-    action: 'requests permission to change',
-    project: 'Project - Nganter App',
-    type: 'Project',
-    time: '5 min ago',
-    status: 'online',
-  },
-  {
-    id: 2,
-    userName: 'Terry Franci',
-    userImage: '/images/user/user-03.jpg',
-    action: 'requests permission to change',
-    project: 'Project - Nganter App',
-    type: 'Project',
-    time: '5 min ago',
-    status: 'offline',
-  },
-  {
-    id: 3,
-    userName: 'Terry Franci',
-    userImage: '/images/user/user-04.jpg',
-    action: 'requests permission to change',
-    project: 'Project - Nganter App',
-    type: 'Project',
-    time: '5 min ago',
-    status: 'online',
-  },
-  {
-    id: 4,
-    userName: 'Terry Franci',
-    userImage: '/images/user/user-05.jpg',
-    action: 'requests permission to change',
-    project: 'Project - Nganter App',
-    type: 'Project',
-    time: '5 min ago',
-    status: 'online',
-  },
-  {
-    id: 5,
-    userName: 'Terry Franci',
-    userImage: '/images/user/user-06.jpg',
-    action: 'requests permission to change',
-    project: 'Project - Nganter App',
-    type: 'Project',
-    time: '5 min ago',
-    status: 'offline',
-  },
-  {
-    id: 6,
-    userName: 'Terry Franci',
-    userImage: '/images/user/user-07.jpg',
-    action: 'requests permission to change',
-    project: 'Project - Nganter App',
-    type: 'Project',
-    time: '5 min ago',
-    status: 'online',
-  },
-  {
-    id: 7,
-    userName: 'Terry Franci',
-    userImage: '/images/user/user-08.jpg',
-    action: 'requests permission to change',
-    project: 'Project - Nganter App',
-    type: 'Project',
-    time: '5 min ago',
-    status: 'online',
-  },
-  {
-    id: 7,
-    userName: 'Terry Franci',
-    userImage: '/images/user/user-09.jpg',
-    action: 'requests permission to change',
-    project: 'Project - Nganter App',
-    type: 'Project',
-    time: '5 min ago',
-    status: 'online',
-  },
-  // Add more notifications here...
-])
+const { notifications, notifying, marcarComoLeida, marcarTodasComoLeidas, eliminarLeidas } = useNotifications()
+
+function handleItemClick(notification) {
+  marcarComoLeida(notification.id)
+  closeDropdown()
+  console.log('Notificación leída:', notification)
+}
 
 const toggleDropdown = () => {
   dropdownOpen.value = !dropdownOpen.value
@@ -210,13 +143,6 @@ const handleClickOutside = (event) => {
   if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
     closeDropdown()
   }
-}
-
-const handleItemClick = (event) => {
-  event.preventDefault()
-  // Handle the item click action here
-  console.log('Notification item clicked')
-  closeDropdown()
 }
 
 const handleViewAllClick = (event) => {

@@ -8,12 +8,13 @@ $nombre = $data['nombre'] ?? '';
 $precio = $data['precio'] ?? '';
 $duracion = $data['duracion'] ?? '';
 $detalles = $data['detalles'] ?? '';
+$categoria = $data['categoria'] ?? '';
 $status = $data['status'] ?? 1;
 
 try {
-    $sql = "INSERT INTO servicios (nombre, precio, duracion , detalles , status) VALUES (?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO servicios (nombre, precio, duracion , detalles , categoria, status) VALUES (?, ?, ?, ?, ?, ?)";
     $stmt = $pdo->prepare($sql);
-    $success = $stmt->execute([$nombre, $precio, $duracion, $detalles, $status]);
+    $success = $stmt->execute([$nombre, $precio, $duracion, $detalles, $categoria, $status]);
 
     echo json_encode(["success" => $success]);
 } catch (Exception $e) {

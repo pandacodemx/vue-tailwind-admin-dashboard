@@ -54,6 +54,16 @@
               />
             </div>
 
+            <div>
+            <label class="block mb-1 text-gray-700 dark:text-gray-300">Nota</label>
+            <textarea
+              v-model="cita.notas"
+              rows="3"
+              class="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:text-white"
+              placeholder="Agrega alguna nota..."
+            ></textarea>
+          </div>
+
             <!-- Botón -->
             <div class="pt-4">
               <button
@@ -137,36 +147,47 @@ function esHoraPermitida(date) {
   return hora >= horarioDia.desde && hora <= horarioDia.hasta
 }
 
+function formatFechaLocal(fecha) {
+  const pad = (n) => n.toString().padStart(2, '0');
+  return `${fecha.getFullYear()}-${pad(fecha.getMonth() + 1)}-${pad(fecha.getDate())} ${pad(fecha.getHours())}:${pad(fecha.getMinutes())}:00`;
+}
+
 async function guardarCita() {
   if (!esHoraPermitida(cita.value.fecha)) {
     notify({
       title: 'Horario no válido',
       text: 'La cita debe estar dentro del horario de atención.',
       type: 'warn',
-    })
-    return
+    });
+    return;
   }
 
   try {
-    const response = await HttpService.post('/citas/crear.php', cita.value)
+    const payload = {
+      ...cita.value,
+      fecha: formatFechaLocal(new Date(cita.value.fecha)), 
+    };
+
+    const response = await HttpService.post('/citas/crear.php', payload);
     if (response.success) {
       notify({
         title: 'Cita registrada',
         text: 'La cita fue guardada correctamente.',
         type: 'success',
-      })
-      cita.value = { cliente: null, fecha: new Date(), servicios: [] }
+      });
+      cita.value = { cliente: null, fecha: new Date(), servicios: [], notas: '' };
     } else {
       notify({
         title: 'Error',
         text: 'No se pudo guardar la cita.',
         type: 'error',
-      })
+      });
     }
   } catch (error) {
-    console.error('Error al guardar cita:', error)
+    console.error('Error al guardar cita:', error);
   }
 }
+
 </script>
 
 <style>

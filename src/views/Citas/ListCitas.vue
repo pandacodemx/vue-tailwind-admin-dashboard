@@ -30,7 +30,7 @@
       </div>
 
       <div
-        class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+        class="overflow-visible rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
       >
         <table class="max-w-full overflow-x-auto custom-scrollbar">
           <thead>
@@ -57,7 +57,7 @@
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
             <tr
-              v-for="cita in citasFiltradas"
+              v-for="cita in citasPaginadas"
               :key="cita.id"
               class="border-t border-gray-100 dark:border-gray-800"
             >
@@ -136,6 +136,28 @@
             </tr>
           </tbody>
         </table>
+        <div class="flex justify-between items-center mt-4 px-4">
+          <div class="text-sm text-gray-600 dark:text-gray-400">
+            Página {{ paginaActual }} de {{ totalPaginas }}
+          </div>
+
+          <div class="flex gap-2">
+            <button
+              :disabled="paginaActual === 1"
+              @click="paginaActual--"
+              class="px-3 py-1 rounded border text-sm"
+            >
+              ← Anterior
+            </button>
+            <button
+              :disabled="paginaActual === totalPaginas"
+              @click="paginaActual++"
+              class="px-3 py-1 rounded border text-sm"
+            >
+              Siguiente →
+            </button>
+          </div>
+        </div>
       </div>
     </ComponentCard>
   </AdminLayout>
@@ -155,12 +177,24 @@ const citas = ref([])
 const filtroTexto = ref('')
 const fechaInicio = ref(null)
 const fechaFin = ref(null)
+const paginaActual = ref(1)
+const citasPorPagina = ref(7)
 
 function resetHora(fecha, fin = false) {
   const f = new Date(fecha)
   f.setHours(fin ? 23 : 0, fin ? 59 : 0, fin ? 59 : 0, 999)
   return f
 }
+
+const totalPaginas = computed(() => {
+  return Math.ceil(citasFiltradas.value.length / citasPorPagina.value)
+})
+
+const citasPaginadas = computed(() => {
+  const inicio = (paginaActual.value - 1) * citasPorPagina.value
+  const fin = inicio + citasPorPagina.value
+  return citasFiltradas.value.slice(inicio, fin)
+})
 
 const citasFiltradas = computed(() => {
   return citas.value.filter((cita) => {
@@ -197,8 +231,13 @@ function formatFecha(fecha) {
 
 const estados = ['pendiente', 'atendida', 'cancelada']
 
-function toggleDropdown(cita) {
-  cita.mostrandoDropdown = !cita.mostrandoDropdown
+function toggleDropdown(citaSeleccionada) {
+  citas.value.forEach((cita) => {
+    if (cita.id !== citaSeleccionada.id) {
+      cita.mostrandoDropdown = false
+    }
+  })
+  citaSeleccionada.mostrandoDropdown = !citaSeleccionada.mostrandoDropdown
 }
 
 function capitalize(str) {

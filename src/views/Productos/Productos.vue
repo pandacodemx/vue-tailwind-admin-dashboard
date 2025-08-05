@@ -205,6 +205,8 @@ import Button from '@/components/ui/Button.vue'
 import Modal from '@/components/ui/Modal.vue'
 import HttpService from '@/services/HttpService'
 import { notify } from '@kyvg/vue3-notification'
+import { useNotifications } from '@/composables/useNotifications'
+const { agregarNotificacion } = useNotifications()
 
 const currentPageTitle = ref('Venta de Productos')
 const isModalOpen = ref(false)
@@ -243,10 +245,28 @@ async function cargarProductos() {
   try {
     const data = await HttpService.get('/productos/obtener.php')
     productos.value = data
+
+ 
+    data.forEach((producto) => {
+      if (Number(producto.stock) <= 0) {
+        agregarNotificacion({
+          id: Date.now() + Math.random(),
+          userName: 'Alerta de Stock',
+          userImage: '/images/user/alert.png', 
+          action: 'sin stock en',
+          project: producto.nombre,
+          type: 'Inventario',
+          time: 'Justo ahora',
+          status: 'offline',
+        })
+      }
+    })
+
   } catch (error) {
-    console.error('Error al cargar clientes:', error)
+    console.error('Error al cargar productos:', error)
   }
 }
+
 function openModal() {
   productoEditando.value = { nombre: '', telefono: '', correo: '', status: '' }
   isModalOpen.value = true

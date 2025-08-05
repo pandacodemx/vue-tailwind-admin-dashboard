@@ -158,6 +158,11 @@
                           <option value="estética">Estética</option>
                           <option value="uñas">Uñas</option>
                           <option value="facial">Facial</option>
+                          <option value="cejas">Cejas y Pestañas</option>
+                          <option value="depilacion">Depilacion</option>
+                          <option value="masajes">Masajes y Spa</option>
+                          <option value="corporal">Tratamientos Corporales</option>
+                          <option value="otros">Otros</option>
                         </select>
                       </div>
                     </div>
@@ -267,7 +272,7 @@ const porPagina = 10
 
 const serviciosFiltrados = computed(() =>
   servicios.value.filter((servicio) =>
-    `${servicio.nombre} ${servicio.precio}`.toLowerCase().includes(filtro.value.toLowerCase()),
+    `${servicio.nombre} ${servicio.precio} ${servicio.categoria}`.toLowerCase().includes(filtro.value.toLowerCase()),
   ),
 )
 
