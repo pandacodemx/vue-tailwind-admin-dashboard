@@ -5,7 +5,7 @@
       @click.prevent="toggleDropdown"
     >
       <span class="mr-3 overflow-hidden rounded-full h-11 w-11">
-        <img src="/images/user/owner.jpg" alt="User" />
+        <img src="/images/user/icon_barber.png" alt="User" />
       </span>
 
       <span class="block mr-1 font-medium text-theme-sm">{{ usuario?.nombre || 'Usuario' }}</span>
@@ -78,11 +78,12 @@ onMounted(() => {
 
 const signOut = async () => {
   try {
-    await HttpService.get('/auth/logout.php') 
+    await HttpService.get('/auth/logout.php')
   } catch (e) {
     console.warn('⚠️ Error al cerrar sesión en backend', e)
   }
-
+  localStorage.removeItem('stockNotificado')
+  localStorage.removeItem('citasNotificadas')
   localStorage.removeItem('usuario')
   usuario.value = null
   closeDropdown()

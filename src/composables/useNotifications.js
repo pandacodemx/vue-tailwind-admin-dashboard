@@ -8,6 +8,22 @@ const notifications = ref([
 
 const notifying = ref(true)
 
+function getFechaHoy() {
+    const hoy = new Date()
+    return hoy.toISOString().split('T')[0] // '2025-08-06'
+}
+
+function yaSeNotificoHoy(clave) {
+    const hoy = getFechaHoy()
+    const fechaGuardada = localStorage.getItem(clave)
+    return fechaGuardada === hoy
+  }
+  
+  function marcarNotificadoHoy(clave) {
+    const hoy = getFechaHoy()
+    localStorage.setItem(clave, hoy)
+  }
+
 function agregarNotificacion(nueva) {
   nueva.leido = false 
   notifications.value.unshift(nueva)

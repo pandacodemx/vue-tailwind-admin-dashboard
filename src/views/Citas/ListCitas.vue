@@ -163,7 +163,7 @@
   </AdminLayout>
 </template>
 <script setup>
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, onUnmounted } from 'vue'
 import HttpService from '@/services/HttpService'
 import AdminLayout from '@/components/layout/AdminLayout.vue'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
@@ -173,12 +173,14 @@ import { es } from 'date-fns/locale'
 import { notify } from '@kyvg/vue3-notification'
 import Datepicker from 'vue3-datepicker'
 
+
 const citas = ref([])
 const filtroTexto = ref('')
 const fechaInicio = ref(null)
 const fechaFin = ref(null)
 const paginaActual = ref(1)
 const citasPorPagina = ref(7)
+const citasNotificadas = ref(new Set())
 
 function resetHora(fecha, fin = false) {
   const f = new Date(fecha)
@@ -213,6 +215,17 @@ const citasFiltradas = computed(() => {
   })
 })
 
+let intervaloCitas = null
+
+onMounted(() => {
+  cargarCitas()
+
+})
+
+onUnmounted(() => {
+  clearInterval(intervaloCitas)
+})
+
 onMounted(() => {
   cargarCitas()
 })
@@ -223,11 +236,14 @@ async function cargarCitas() {
     ...cita,
     mostrandoDropdown: false,
   }))
+
 }
 
 function formatFecha(fecha) {
   return format(new Date(fecha), "dd 'de' MMMM yyyy, HH:mm", { locale: es })
 }
+
+
 
 const estados = ['pendiente', 'atendida', 'cancelada']
 

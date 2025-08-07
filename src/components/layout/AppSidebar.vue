@@ -15,15 +15,15 @@
   >
     <div
       :class="[
-        'py-8 flex',
-        !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-start',
+        'py-8 flex jh',
+        !isExpanded && !isHovered ? 'lg:justify-center' : 'justify-center',
       ]"
     >
       <router-link to="/">
         <img
           v-if="isExpanded || isHovered || isMobileOpen"
-          class="dark:hidden"
-          src="/images/logo/logo.svg"
+          class="dark:hidden "
+          src="/images/logo/logo.png"
           alt="Logo"
           width="150"
           height="40"
@@ -217,16 +217,17 @@ import { useRoute } from "vue-router";
 import {
   GridIcon,
   CalenderIcon,
-  UserCircleIcon, 
-  PieChartIcon,
+  UserCircleIcon,  
   ChevronDownIcon,
   HorizontalDots, 
   ListIcon,
-  PlugInIcon,
   ArchiveIcon
 } from "../../icons";
 import SidebarWidget from "./SidebarWidget.vue";
 import { useSidebar } from "@/composables/useSidebar";
+import SettingsIcon from "@/icons/SettingsIcon.vue";
+import SuccessIcon from "@/icons/SuccessIcon.vue";
+
 
 const route = useRoute();
 
@@ -279,7 +280,7 @@ const menuGroups = [
         path: "/productos",
       },     
       {
-        icon: PlugInIcon,
+        icon: SuccessIcon,
         name: "Ventas",
         subItems: [
           { name: "Nueva", path: "/ventas/nueva", pro: false },
@@ -293,11 +294,11 @@ const menuGroups = [
     title: "Otros",
     items: [
       {
-        icon: PieChartIcon,
+        icon: SettingsIcon,
         name: "Ajustes",
         subItems: [
           { name: "Horario", path: "/ajustes/horario", pro: false },
-          { name: "Perfil", path: "/ajustes/perfil", pro: false },
+          { name: "Perfil", path: "/profile", pro: false },
         ],
       },     
       

@@ -74,6 +74,7 @@
 import { ref, onMounted } from 'vue'
 import HttpService from '@/services/HttpService'
 import GraficaCitas from '@/components/dashboard/GraficaCitas.vue'
+import { verificarStockBajo, verificarCitasProximas } from '@/utils/notificaciones.js'
 
 const resumen = ref({
   total: 0,
@@ -85,6 +86,11 @@ const resumen = ref({
 })
 
 const resumenCards = ref({})
+const productos = ref([])
+const citas = ref([])
+
+const productosNotificados = new Set(JSON.parse(localStorage.getItem('stockNotificado') || '[]'))
+const citasNotificadas = new Set(JSON.parse(localStorage.getItem('citasNotificadas') || '[]'))
 
 onMounted(async () => {
   const data = await HttpService.get('/citas/resumen_dashboard.php')
@@ -96,6 +102,18 @@ onMounted(async () => {
     '🔴 Canceladas': data.canceladas || 0,
     '📊 Total Citas': data.total || 0,
   }
+
+  const productosData = await HttpService.get('/productos/obtener.php')
+  productos.value = productosData
+  verificarStockBajo(productos.value, productosNotificados)
+
+  const citasData = await HttpService.get('/citas/listar.php')
+  citas.value = citasData
+  verificarCitasProximas(citas.value, citasNotificadas)
+
+  // Guardar los sets actualizados
+  localStorage.setItem('stockNotificado', JSON.stringify([...productosNotificados]))
+  localStorage.setItem('citasNotificadas', JSON.stringify([...citasNotificadas]))
 })
 
 function formatearFecha(fecha) {

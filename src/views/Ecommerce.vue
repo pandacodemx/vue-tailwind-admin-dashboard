@@ -6,7 +6,6 @@
 
 <script>
 import AdminLayout from '../components/layout/AdminLayout.vue'
-
 import DashboardCitas from '@/components/dashboard/DashboardCitas.vue'
 
 export default {
