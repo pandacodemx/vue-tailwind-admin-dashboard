@@ -31,17 +31,17 @@
         <img
           v-if="isExpanded || isHovered || isMobileOpen"
           class="hidden dark:block"
-          src="/images/logo/logo-dark.svg"
+          src="/images/logo/logo_dark.png"
           alt="Logo"
           width="150"
           height="40"
         />
         <img
           v-else
-          src="/images/logo/logo-icon.svg"
+          src="/images/logo/logo-icon.png"
           alt="Logo"
-          width="32"
-          height="32"
+          width="50"
+          height="50"
         />
       </router-link>
     </div>
