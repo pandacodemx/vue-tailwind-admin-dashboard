@@ -9,23 +9,41 @@ $fecha = $data['fecha'] ?? null;
 $servicios = $data['servicios'] ?? [];
 $notas = $data['notas'] ?? '';
 $estado = $data['estado'] ?? 'pendiente';
+$fecha_fin = $data['fecha_fin'] ?? null;
 
-if (!$cliente_id || !$fecha || empty($servicios)) {
+if (!$cliente_id || !$fecha || !$fecha_fin || empty($servicios)) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Datos incompletos']);
     exit;
 }
 
 try {
+
+    $sqlCheck = "SELECT COUNT(*) as total
+    FROM citas
+    WHERE 
+       (fecha < :fecha_fin) 
+       AND (fecha_fin > :fecha)";
+    $stmtCheck = $pdo->prepare($sqlCheck);      
+    $stmtCheck->execute([
+        ':fecha' => $fecha,
+        ':fecha_fin' => $fecha_fin
+    ]);
+    $resCheck = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+
+        if ($resCheck['total'] > 0) {
+        echo json_encode(['success' => false, 'message' => 'El horario seleccionado ya está ocupado.']);
+        exit;
+        }
     $pdo->beginTransaction();
 
-    // 1. Insertar cita
-    $stmt = $pdo->prepare('INSERT INTO citas (cliente_id, fecha, notas, estado) VALUES (?, ?, ?, ?)');
-    $stmt->execute([$cliente_id, $fecha, $notas, $estado]);
+    //Insertar cita
+    $stmt = $pdo->prepare('INSERT INTO citas (cliente_id, fecha, fecha_fin, notas, estado) VALUES (?, ?, ?, ?, ?)');
+    $stmt->execute([$cliente_id, $fecha, $fecha_fin, $notas, $estado]);
 
     $cita_id = $pdo->lastInsertId();
 
-    // 2. Insertar servicios relacionados
+    //Insertar servicios relacionados
     $stmtServ = $pdo->prepare('INSERT INTO cita_servicios (cita_id, servicio_id) VALUES (?, ?)');
     foreach ($servicios as $servicio) {
         $stmtServ->execute([$cita_id, $servicio['id']]);

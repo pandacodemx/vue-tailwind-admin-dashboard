@@ -32,9 +32,9 @@
                 :close-on-select="false"
                 :clear-on-select="false"
                 placeholder="Selecciona uno o varios servicios"
-                label="nombre"
+                :custom-label="(s) => `${s.nombre} (${formatearDuracion(s.duracion)})`"
                 track-by="id"
-                :searchable="true"
+                :searchable="true"               
               />
             </div>
 
@@ -108,7 +108,12 @@ onMounted(() => {
   cargarServicios()
   cargarHorarios()
 })
-
+function formatearDuracion(minutos) {
+  if (minutos < 60) return `${minutos} min`;
+  const horas = Math.floor(minutos / 60);
+  const mins = minutos % 60;
+  return mins > 0 ? `${horas}h ${mins}min` : `${horas}h`;
+}
 async function cargarHorarios() {
   const res = await HttpService.get('/configuracion/horarios.php')
   if (Array.isArray(res)) {
@@ -152,6 +157,17 @@ function formatFechaLocal(fecha) {
   return `${fecha.getFullYear()}-${pad(fecha.getMonth() + 1)}-${pad(fecha.getDate())} ${pad(fecha.getHours())}:${pad(fecha.getMinutes())}:00`;
 }
 
+function calcularFechaFin() {
+  if (!cita.value.fecha || !cita.value.servicios.length) return null;
+
+  const totalMinutos = cita.value.servicios.reduce((total, serv) => total + serv.duracion, 0);
+  
+  const fechaFin = new Date(cita.value.fecha);
+  fechaFin.setMinutes(fechaFin.getMinutes() + totalMinutos);
+
+  return fechaFin;
+}
+
 async function guardarCita() {
   if (!esHoraPermitida(cita.value.fecha)) {
     notify({
@@ -162,11 +178,23 @@ async function guardarCita() {
     return;
   }
 
-  try {
-    const payload = {
+  const fechaFin = calcularFechaFin();
+  
+  if (!fechaFin) {
+    notify({
+      title: 'Duración no válida',
+      text: 'Selecciona al menos un servicio con duración definida.',
+      type: 'warn',
+    });
+    return;
+  }
+
+  const payload = {
       ...cita.value,
-      fecha: formatFechaLocal(new Date(cita.value.fecha)), 
+      fecha: formatFechaLocal(new Date(cita.value.fecha)),
+      fecha_fin: fechaFin ? formatFechaLocal(fechaFin) : null
     };
+  try {    
 
     const response = await HttpService.post('/citas/crear.php', payload);
     if (response.success) {
@@ -179,7 +207,7 @@ async function guardarCita() {
     } else {
       notify({
         title: 'Error',
-        text: 'No se pudo guardar la cita.',
+        text: response.message,
         type: 'error',
       });
     }
@@ -192,6 +220,12 @@ async function guardarCita() {
 
 <style>
 .vue-notification.warn {
+  color: #000000;
+}
+.vue-notification.error {
+  color: #ffff;
+}
+.vue-notification.success {
   color: #000000;
 }
 </style>

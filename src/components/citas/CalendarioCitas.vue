@@ -64,6 +64,10 @@ function configurarCalendarOptions(horarios) {
     slotMinTime,
     slotMaxTime,
     events: eventos.value, 
+    selectAllow: (selectInfo) => {
+    const ahora = new Date();
+    return selectInfo.start >= ahora;
+  },
   }
 }
 
@@ -75,7 +79,7 @@ onMounted(async () => {
     id: cita.id,
     title: cita.cliente_nombre,
     start: cita.fecha,
-    end: calcularFin(cita.fecha, cita.duracion || 30),
+    end: cita.fecha_fin,  
     backgroundColor: colorPorEstado(cita.estado),
     borderColor: '#ccc',
     estado: cita.estado,
@@ -88,28 +92,6 @@ onMounted(async () => {
 
   configurarCalendarOptions(horarios)
 })
-
-
-function esHorarioValidoSegunJSON(fecha) {
-  const dia = fecha.getDay(); // 0 (domingo) - 6 (sábado)
-  const hora = fecha.toTimeString().substring(0, 8); // HH:MM:SS
-  
-
-  const diaConfig = horariosLaborales.value.find(h => h.dia === dia);
-  
-  if (!diaConfig || !diaConfig.activo) {
-    console.log(`Día ${dia} no está activo o no tiene configuración`);
-    return false;
-  }
-  
-  const horaValida = hora >= diaConfig.desde && hora < diaConfig.hasta;
-  
-  if (!horaValida) {
-    console.log(`Hora ${hora} no está entre ${diaConfig.desde} y ${diaConfig.hasta}`);
-  }
-  
-  return horaValida;
-}
 
 function calcularFin(fechaInicio, minutosDuracion) {
   const inicio = new Date(fechaInicio)
@@ -238,7 +220,7 @@ async function cargarEventos() {
       id: cita.id,
       title: cita.cliente_nombre,
       start: cita.fecha,
-      end: calcularFin(cita.fecha, cita.duracion || 30),
+      end: cita.fecha_fin,   
       backgroundColor: colorPorEstado(cita.estado),
       borderColor: '#ccc',
       estado: cita.estado,
@@ -256,6 +238,11 @@ async function cargarEventos() {
 </script>
 
 <style>
+.fc-past-event {
+  opacity: 0.5;
+  background-color: #f0f0f0 !important;
+  cursor: not-allowed;
+}
 .fc-timegrid-slot {
   height: 3rem !important;
 
@@ -300,7 +287,7 @@ async function cargarEventos() {
 }
 
 .fc-hora {
-  color: #555;
+  color: #ffffff;
   font-size: 0.75rem;
 }
 
