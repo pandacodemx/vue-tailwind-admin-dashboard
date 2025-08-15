@@ -91,14 +91,24 @@ onMounted(async () => {
 
 
 function esHorarioValidoSegunJSON(fecha) {
-  const dia = fecha.getDay() // 0 (domingo) - 6 (sábado)
-  const hora = fecha.toTimeString().substring(0, 5)
+  const dia = fecha.getDay(); // 0 (domingo) - 6 (sábado)
+  const hora = fecha.toTimeString().substring(0, 8); // HH:MM:SS
+  
 
-  const diaConfig = horariosLaborales.value.find((h) => h.dia === dia)
-
-  if (!diaConfig || !diaConfig.activo) return false
-
-  return hora >= diaConfig.desde && hora < diaConfig.hasta
+  const diaConfig = horariosLaborales.value.find(h => h.dia === dia);
+  
+  if (!diaConfig || !diaConfig.activo) {
+    console.log(`Día ${dia} no está activo o no tiene configuración`);
+    return false;
+  }
+  
+  const horaValida = hora >= diaConfig.desde && hora < diaConfig.hasta;
+  
+  if (!horaValida) {
+    console.log(`Hora ${hora} no está entre ${diaConfig.desde} y ${diaConfig.hasta}`);
+  }
+  
+  return horaValida;
 }
 
 function calcularFin(fechaInicio, minutosDuracion) {
@@ -153,53 +163,102 @@ function handleEventClick(info) {
 
   modalVisible.value = true
 }
-function handleEventDrop(info) {
-  const id = info.event.id
-  const nuevaFecha = info.event.start
-  const offsetMs = nuevaFecha.getTimezoneOffset() * 60000
-  const fechaLocal = new Date(nuevaFecha.getTime() - offsetMs)
-
-  if (!esHorarioValidoSegunJSON(nuevaFecha)) {
-    notify({
-      title: '⛔ Horario inválido',
-      text: 'La nueva hora está fuera del horario disponible.',
-      type: 'warn',
-    })
-    info.revert()
-    return
+async function handleEventDrop(info) {
+  const id = info.event.id;
+  const nuevaFecha = info.event.start;
+  
+  if (!nuevaFecha) {
+    notify({ title: 'Error', text: 'Fecha no válida', type: 'error' });
+    info.revert();
+    return;
   }
+  const ahora = new Date();
+  if (nuevaFecha < ahora) {
+    const diffHoras = Math.floor((ahora - nuevaFecha) / (1000 * 60 * 60));
+    let mensaje = '';
+    
+    if (nuevaFecha.toDateString() === ahora.toDateString()) {
+      mensaje = `No puedes programar citas en horas pasadas (${diffHoras} hora(s) atrás)`;
+    } else {
+      mensaje = 'No puedes programar citas en fechas pasadas';
+    }
 
-  HttpService.post('/citas/reprogramar.php', {
-    id,
-    nueva_fecha: fechaLocal.toISOString().slice(0, 19).replace('T', ' '),
-  })
-    .then((res) => {
-      if (res.success) {
-        notify({
-          title: 'Cita Reprogramada',
-          text: '✅ Cita reprogramada correctamente',
-          type: 'success',
-        })
-      } else {
-         notify({
-          title: 'Cita Reprogramada',
-          text: '❌ No se pudo reprogramar la cita',
-          type: 'error',
-        })
-        info.revert() // Revierte el movimiento en el calendario
-      }
-    })
-    .catch((error) => {
-      console.error('❌ Error al reprogramar cita:', error)
-      info.revert()
-    })
+    notify({
+      title: '⏰ Horario no permitido',
+      text: mensaje,
+      type: 'error'
+    });
+    info.revert();
+    return;
+  }
+  const ajustarZonaHoraria = (date) => {
+    const offset = date.getTimezoneOffset() * 60000;
+    return new Date(date.getTime() - offset);
+  };
+
+  const fechaAjustada = ajustarZonaHoraria(nuevaFecha);
+  const fechaParaServidor = fechaAjustada.toISOString().slice(0, 19).replace('T', ' ');
+
+  try {
+    const res = await HttpService.post('/citas/reprogramar.php', {
+      id,
+      nueva_fecha: fechaParaServidor
+    });
+
+    if (res.success) {
+      notify({
+        title: 'Éxito',
+        text: '✅Cita reprogramada correctamente',
+        type: 'success'
+      });
+      await cargarEventos(); 
+    } else {
+      notify({
+        title: 'Error',
+        text: res.error || 'Error al reprogramar',
+        type: 'error'
+      });
+      info.revert();
+    }
+  } catch (error) {
+    console.error("Error completo:", error.response?.data || error.message);
+    notify({
+      title: 'Error',
+      text: 'Error de conexión al reprogramar',
+      type: 'error'
+    });
+    info.revert();
+  }
+}
+async function cargarEventos() {
+  try {
+    const citas = await HttpService.get('/citas/listar.php');
+    
+    eventos.value = citas.map((cita) => ({
+      id: cita.id,
+      title: cita.cliente_nombre,
+      start: cita.fecha,
+      end: calcularFin(cita.fecha, cita.duracion || 30),
+      backgroundColor: colorPorEstado(cita.estado),
+      borderColor: '#ccc',
+      estado: cita.estado,
+      servicios: cita.servicios,
+      notas: cita.notas,
+    }));
+  
+    if (calendarOptions.value) {
+      calendarOptions.value.events = eventos.value;
+    }
+  } catch (error) {
+    console.error('Error al cargar citas:', error);
+  }
 }
 </script>
 
 <style>
 .fc-timegrid-slot {
   height: 3rem !important;
-  /* o 48px, puedes ajustar */
+
 }
 
 .fc-event-title {

@@ -30,7 +30,8 @@
               :disabled="paginaActual === 1"
               variant="secondary"
               class="dark:text-white"
-              >Anterior</Button
+              ><ChevronLeftIcon
+              /></Button
             >
             <span class="text-sm dark:text-white">
               Página {{ paginaActual }} de {{ totalPaginas }}
@@ -40,9 +41,13 @@
               :disabled="paginaActual === totalPaginas"
               variant="secondary"
               class="dark:text-white"
-              >Siguiente</Button
+              ><ChevronRightIcon
+              /></Button
             >
           </div>
+
+          
+
         </div>
         <Modal v-if="isModalOpen">
           <template #body>
@@ -172,6 +177,8 @@ import Button from '@/components/ui/Button.vue'
 import Modal from '@/components/ui/Modal.vue'
 import HttpService from '@/services/HttpService'
 import { notify } from '@kyvg/vue3-notification'
+import ChevronLeftIcon from '@/icons/ChevronLeftIcon.vue'
+import ChevronRightIcon from '@/icons/ChevronRightIcon.vue'
 
 const currentPageTitle = ref('Tabla de Clientes')
 const isModalOpen = ref(false)

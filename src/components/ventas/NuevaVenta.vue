@@ -17,7 +17,7 @@
       />
 
       <input type="number" min="1" v-model.number="cantidad" class="w-24 p-2 rounded border" />
-      <button @click="agregarProducto" class="bg-blue-600 text-white px-4 py-2 rounded">
+      <button @click="agregarProducto" class=" text-white px-4 py-2 rounded bg-amber-800">
         Agregar
       </button>
     </div>

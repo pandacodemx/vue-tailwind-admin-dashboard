@@ -46,7 +46,8 @@
               :disabled="paginaActual === 1"
               variant="secondary"
               class="dark:text-white"
-              >Anterior</Button
+              ><ChevronLeftIcon
+              /></Button
             >
             <span class="text-sm dark:text-white">
               Página {{ paginaActual }} de {{ totalPaginas }}
@@ -56,9 +57,11 @@
               :disabled="paginaActual === totalPaginas"
               variant="secondary"
               class="dark:text-white"
-              >Siguiente</Button
+              ><ChevronRightIcon
+              /></Button
             >
-          </div>
+          </div>         
+
         </div>
 
         <!--MODAL CREACION / EDICION-->
@@ -259,6 +262,8 @@ import Modal from '@/components/ui/Modal.vue'
 import ServiciosTable from '@/components/servicios/ServiciosTable.vue'
 import HttpService from '@/services/HttpService'
 import { notify } from '@kyvg/vue3-notification'
+import ChevronLeftIcon from '@/icons/ChevronLeftIcon.vue'
+import ChevronRightIcon from '@/icons/ChevronRightIcon.vue'
 const currentPageTitle = ref('Tabla de Servicios')
 const isModalOpen = ref(false)
 const isDeleteModalOpen = ref(false)
