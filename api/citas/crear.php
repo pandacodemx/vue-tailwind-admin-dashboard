@@ -23,7 +23,8 @@ try {
     FROM citas
     WHERE 
        (fecha < :fecha_fin) 
-       AND (fecha_fin > :fecha)";
+       AND (fecha_fin > :fecha)
+       AND estado != 'cancelada'";
     $stmtCheck = $pdo->prepare($sqlCheck);      
     $stmtCheck->execute([
         ':fecha' => $fecha,

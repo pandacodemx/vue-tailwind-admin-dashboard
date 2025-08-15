@@ -2,6 +2,11 @@
   <AdminLayout>
     <PageBreadcrumb pageTitle="Citas registradas" />
     <ComponentCard title="Listado de Citas">
+      <div class="flex items-center justify-end">
+        <a href="/citas/nueva">
+          <Button size="sm" variant="primary" :endIcon="PlusIcon"> Nueva Cita </Button>
+        </a>
+      </div>
       <!-- Filtros -->
       <div class="flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
         <!-- Buscador -->
@@ -131,7 +136,12 @@
               </td>
               <td class="px-4 py-2">{{ cita.notas || '—' }}</td>
               <td class="px-4 py-2 space-x-2">
-                <button @click="editarCita(cita)" class="text-blue-500 hover:underline">✏️</button>
+                <button
+                  @click="solicitarEliminacionCita(cita)"
+                  class="text-red-500 hover:underline"
+                >
+                  🗑️
+                </button>
               </td>
             </tr>
           </tbody>
@@ -158,6 +168,32 @@
             </button>
           </div>
         </div>
+        <Modal v-if="isDeleteCitaModalOpen" @close="closeDeleteCitaModal">
+          <template #body>
+            <div class="bg-white dark:bg-gray-900 rounded-xl p-6 max-w-md mx-auto text-center">
+              <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+                ¿Eliminar cita?
+              </h3>
+              <p class="text-gray-600 dark:text-gray-400 mb-6">
+                ¿Estás seguro de que deseas eliminar la cita de
+                <strong>{{ citaAEliminar?.cliente_nombre }}</strong
+                >?
+              </p>
+              <div class="flex justify-center gap-4">
+                <Button variant="secondary" class="dark:text-white" @click="closeDeleteCitaModal">
+                  Cancelar
+                </Button>
+                <Button
+                  variant="destructive"
+                  class="dark:text-white"
+                  @click="confirmarEliminacionCita"
+                >
+                  Eliminar
+                </Button>
+              </div>
+            </div>
+          </template>
+        </Modal>
       </div>
     </ComponentCard>
   </AdminLayout>
@@ -172,7 +208,9 @@ import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { notify } from '@kyvg/vue3-notification'
 import Datepicker from 'vue3-datepicker'
-
+import Modal from '@/components/ui/Modal.vue'
+import Button from '@/components/ui/Button.vue'
+import { PlusIcon } from '@/icons'
 
 const citas = ref([])
 const filtroTexto = ref('')
@@ -180,7 +218,18 @@ const fechaInicio = ref(null)
 const fechaFin = ref(null)
 const paginaActual = ref(1)
 const citasPorPagina = ref(7)
-const citasNotificadas = ref(new Set())
+const isDeleteCitaModalOpen = ref(false)
+const citaAEliminar = ref(null)
+
+function solicitarEliminacionCita(cita) {
+  citaAEliminar.value = cita
+  isDeleteCitaModalOpen.value = true
+}
+
+function closeDeleteCitaModal() {
+  isDeleteCitaModalOpen.value = false
+  citaAEliminar.value = null
+}
 
 function resetHora(fecha, fin = false) {
   const f = new Date(fecha)
@@ -219,7 +268,6 @@ let intervaloCitas = null
 
 onMounted(() => {
   cargarCitas()
-
 })
 
 onUnmounted(() => {
@@ -236,14 +284,11 @@ async function cargarCitas() {
     ...cita,
     mostrandoDropdown: false,
   }))
-
 }
 
 function formatFecha(fecha) {
   return format(new Date(fecha), "dd 'de' MMMM yyyy, HH:mm", { locale: es })
 }
-
-
 
 const estados = ['pendiente', 'atendida', 'cancelada']
 
@@ -281,6 +326,37 @@ async function cambiarEstado(cita, nuevoEstado) {
     notify({
       title: 'Error',
       text: 'No se pudo actualizar el estado.',
+      type: 'error',
+    })
+  }
+}
+async function confirmarEliminacionCita() {
+  try {
+    const res = await HttpService.post('/citas/cambiar_estado.php', {
+      id: citaAEliminar.value.id,
+      estado: 'cancelada',
+    })
+
+    if (res.success) {
+      notify({
+        title: 'Cita cancelada',
+        text: 'La cita fue marcada como cancelada correctamente.',
+        type: 'primary',
+      })
+      await cargarCitas()
+      closeDeleteCitaModal()
+    } else {
+      notify({
+        title: 'Error',
+        text: 'No se pudo cancelar la cita.',
+        type: 'error',
+      })
+    }
+  } catch (err) {
+    console.error(err)
+    notify({
+      title: 'Error',
+      text: 'Ocurrió un error inesperado.',
       type: 'error',
     })
   }

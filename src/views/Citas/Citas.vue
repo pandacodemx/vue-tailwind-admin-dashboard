@@ -120,6 +120,29 @@ async function cargarHorarios() {
     horariosAtencion.value = res
   }
 }
+async function cargarCitasDisponibles() {
+  const res = await HttpService.get('/citas/listar.php')
+  return res.filter(cita => cita.estado !== 'cancelada')
+}
+
+async function esHorarioDisponible(fechaInicio, fechaFin) {
+  const citas = await cargarCitasDisponibles()
+
+  for (const c of citas) {
+    const inicio = new Date(c.fecha)
+    const fin = new Date(c.fecha_fin)
+
+    if (
+      (fechaInicio >= inicio && fechaInicio < fin) ||
+      (fechaFin > inicio && fechaFin <= fin) ||
+      (fechaInicio <= inicio && fechaFin >= fin)
+    ) {
+      return false // choque detectado
+    }
+  }
+
+  return true
+}
 
 async function cargarClientes() {
   const res = await HttpService.get('/clientes/obtener.php')
@@ -177,13 +200,16 @@ async function guardarCita() {
     });
     return;
   }
+  
 
   const fechaFin = calcularFechaFin();
-  
-  if (!fechaFin) {
+  if (!fechaFin) return;
+
+  const disponible = await esHorarioDisponible(cita.value.fecha, fechaFin);
+  if (!disponible) {
     notify({
-      title: 'Duración no válida',
-      text: 'Selecciona al menos un servicio con duración definida.',
+      title: 'Horario ocupado',
+      text: 'Ya hay una cita en ese horario.',
       type: 'warn',
     });
     return;
@@ -227,5 +253,10 @@ async function guardarCita() {
 }
 .vue-notification.success {
   color: #000000;
+}
+.multiselect__option--highlight {
+    background: #25875b;
+    outline: 0;
+    color: #fff;
 }
 </style>

@@ -27,7 +27,6 @@ if ($fechaCita < $ahora) {
     exit;
 }
 
-
 $diaSemana = (int) $fechaCita->format('w');
 $horaCita = $fechaCita->format('H:i:s');
 
@@ -38,11 +37,6 @@ if (!$horarioEncontrado) {
     echo json_encode([
         'success' => false,
         'error' => '❌ Día no laborable',
-        'debug' => [
-            'dia' => $diaSemana,
-            'hora_cita' => $horaCita,
-            'horarios' => $horarios
-        ]
     ]);
     exit;
 }
@@ -55,12 +49,34 @@ if ($horaCita < $desde || $horaCita >= $hasta) {
         'success' => false,
         'error' => '❌ Fuera de horario laboral',
         'detalles' => "Intento: $horaCita, Permitido: $desde-$hasta",
-        'debug' => $fechaCita
     ]);
     exit;
 }
 
-$stmt = $pdo->prepare("UPDATE citas SET fecha = ? WHERE id = ?");
-$success = $stmt->execute([$fechaCita->format('Y-m-d H:i:s'), $id]);
+// SERVICIOS
+$sql = "SELECT SUM(s.duracion) AS total_minutos
+        FROM cita_servicios cs
+        JOIN servicios s ON cs.servicio_id = s.id
+        WHERE cs.cita_id = ?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$id]);
+$total_minutos = (int)$stmt->fetchColumn();
+if ($total_minutos <= 0) $total_minutos = 30; // valor por defecto si algo falla
 
-echo json_encode(['success' => $success, 'hora_actualizada' => $fechaCita->format('Y-m-d H:i:s')]);
+// FECHA FIN
+$fechaFin = clone $fechaCita;
+$fechaFin->modify("+{$total_minutos} minutes");
+
+// UPDATE FECHA 
+$stmt = $pdo->prepare("UPDATE citas SET fecha = ?, fecha_fin = ? WHERE id = ?");
+$success = $stmt->execute([
+    $fechaCita->format('Y-m-d H:i:s'),
+    $fechaFin->format('Y-m-d H:i:s'),
+    $id
+]);
+
+echo json_encode([
+    'success' => $success,
+    'hora_actualizada' => $fechaCita->format('Y-m-d H:i:s'),
+    'hora_fin' => $fechaFin->format('Y-m-d H:i:s')
+]);

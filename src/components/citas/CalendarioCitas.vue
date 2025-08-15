@@ -73,7 +73,7 @@ function configurarCalendarOptions(horarios) {
 
 
 onMounted(async () => {
-  const citas = await HttpService.get('/citas/listar.php')
+  const citas = await HttpService.get('/citas/citas_calendario.php')
 
   eventos.value = citas.map((cita) => ({
     id: cita.id,
@@ -92,11 +92,6 @@ onMounted(async () => {
 
   configurarCalendarOptions(horarios)
 })
-
-function calcularFin(fechaInicio, minutosDuracion) {
-  const inicio = new Date(fechaInicio)
-  return new Date(inicio.getTime() + minutosDuracion * 60000)
-}
 
 function colorPorEstado(estado) {
   switch (estado) {
@@ -214,7 +209,7 @@ async function handleEventDrop(info) {
 }
 async function cargarEventos() {
   try {
-    const citas = await HttpService.get('/citas/listar.php');
+    const citas = await HttpService.get('/citas/citas_calendario.php');
     
     eventos.value = citas.map((cita) => ({
       id: cita.id,
