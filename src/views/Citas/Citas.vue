@@ -34,7 +34,7 @@
                 placeholder="Selecciona uno o varios servicios"
                 :custom-label="(s) => `${s.nombre} (${formatearDuracion(s.duracion)})`"
                 track-by="id"
-                :searchable="true"               
+                :searchable="true"
               />
             </div>
 
@@ -53,16 +53,19 @@
                 class="w-full"
               />
             </div>
+            <div class="mt-2 text-gray-700 dark:text-gray-300">
+              ⏰ Hora estimada de finalización: <strong>{{ formatHora(fechaFinCalculada) }}</strong>
+            </div>
 
             <div>
-            <label class="block mb-1 text-gray-700 dark:text-gray-300">Nota</label>
-            <textarea
-              v-model="cita.notas"
-              rows="3"
-              class="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:text-white"
-              placeholder="Agrega alguna nota..."
-            ></textarea>
-          </div>
+              <label class="block mb-1 text-gray-700 dark:text-gray-300">Nota</label>
+              <textarea
+                v-model="cita.notas"
+                rows="3"
+                class="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:text-white"
+                placeholder="Agrega alguna nota..."
+              ></textarea>
+            </div>
 
             <!-- Botón -->
             <div class="pt-4">
@@ -82,7 +85,7 @@
 
 <script setup>
 import { es } from 'date-fns/locale'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import HttpService from '@/services/HttpService'
 import { notify } from '@kyvg/vue3-notification'
 import PageBreadcrumb from '@/components/common/PageBreadcrumb.vue'
@@ -109,10 +112,10 @@ onMounted(() => {
   cargarHorarios()
 })
 function formatearDuracion(minutos) {
-  if (minutos < 60) return `${minutos} min`;
-  const horas = Math.floor(minutos / 60);
-  const mins = minutos % 60;
-  return mins > 0 ? `${horas}h ${mins}min` : `${horas}h`;
+  if (minutos < 60) return `${minutos} min`
+  const horas = Math.floor(minutos / 60)
+  const mins = minutos % 60
+  return mins > 0 ? `${horas}h ${mins}min` : `${horas}h`
 }
 async function cargarHorarios() {
   const res = await HttpService.get('/configuracion/horarios.php')
@@ -122,7 +125,7 @@ async function cargarHorarios() {
 }
 async function cargarCitasDisponibles() {
   const res = await HttpService.get('/citas/listar.php')
-  return res.filter(cita => cita.estado !== 'cancelada')
+  return res.filter((cita) => cita.estado !== 'cancelada')
 }
 
 async function esHorarioDisponible(fechaInicio, fechaFin) {
@@ -160,7 +163,6 @@ function esDiaPermitido(date) {
   return horarioDia && horarioDia.activo
 }
 
-
 function esHoraPermitida(date) {
   const dia = date.getDay() // 0 (Dom) - 6 (Sáb)
   const horarioDia = horariosAtencion.value.find((h) => h.dia === dia)
@@ -176,19 +178,19 @@ function esHoraPermitida(date) {
 }
 
 function formatFechaLocal(fecha) {
-  const pad = (n) => n.toString().padStart(2, '0');
-  return `${fecha.getFullYear()}-${pad(fecha.getMonth() + 1)}-${pad(fecha.getDate())} ${pad(fecha.getHours())}:${pad(fecha.getMinutes())}:00`;
+  const pad = (n) => n.toString().padStart(2, '0')
+  return `${fecha.getFullYear()}-${pad(fecha.getMonth() + 1)}-${pad(fecha.getDate())} ${pad(fecha.getHours())}:${pad(fecha.getMinutes())}:00`
 }
 
 function calcularFechaFin() {
-  if (!cita.value.fecha || !cita.value.servicios.length) return null;
+  if (!cita.value.fecha || !cita.value.servicios.length) return null
 
-  const totalMinutos = cita.value.servicios.reduce((total, serv) => total + serv.duracion, 0);
-  
-  const fechaFin = new Date(cita.value.fecha);
-  fechaFin.setMinutes(fechaFin.getMinutes() + totalMinutos);
+  const totalMinutos = cita.value.servicios.reduce((total, serv) => total + serv.duracion, 0)
 
-  return fechaFin;
+  const fechaFin = new Date(cita.value.fecha)
+  fechaFin.setMinutes(fechaFin.getMinutes() + totalMinutos)
+
+  return fechaFin
 }
 
 async function guardarCita() {
@@ -197,51 +199,65 @@ async function guardarCita() {
       title: 'Horario no válido',
       text: 'La cita debe estar dentro del horario de atención.',
       type: 'warn',
-    });
-    return;
+    })
+    return
   }
-  
 
-  const fechaFin = calcularFechaFin();
-  if (!fechaFin) return;
+  const fechaFin = calcularFechaFin()
+  if (!fechaFin) return
 
-  const disponible = await esHorarioDisponible(cita.value.fecha, fechaFin);
+  const disponible = await esHorarioDisponible(cita.value.fecha, fechaFin)
   if (!disponible) {
     notify({
       title: 'Horario ocupado',
       text: 'Ya hay una cita en ese horario.',
       type: 'warn',
-    });
-    return;
+    })
+    return
   }
 
   const payload = {
-      ...cita.value,
-      fecha: formatFechaLocal(new Date(cita.value.fecha)),
-      fecha_fin: fechaFin ? formatFechaLocal(fechaFin) : null
-    };
-  try {    
-
-    const response = await HttpService.post('/citas/crear.php', payload);
+    ...cita.value,
+    fecha: formatFechaLocal(new Date(cita.value.fecha)),
+    fecha_fin: fechaFin ? formatFechaLocal(fechaFin) : null,
+  }
+  try {
+    const response = await HttpService.post('/citas/crear.php', payload)
     if (response.success) {
       notify({
         title: 'Cita registrada',
         text: 'La cita fue guardada correctamente.',
         type: 'success',
-      });
-      cita.value = { cliente: null, fecha: new Date(), servicios: [], notas: '' };
+      })
+      cita.value = { cliente: null, fecha: new Date(), servicios: [], notas: '' }
     } else {
       notify({
         title: 'Error',
         text: response.message,
         type: 'error',
-      });
+      })
     }
   } catch (error) {
-    console.error('Error al guardar cita:', error);
+    console.error('Error al guardar cita:', error)
   }
 }
+const fechaFinCalculada = computed(() => {
+  if (!cita.value.fecha || !cita.value.servicios.length) return null
+  const totalMinutos = cita.value.servicios.reduce((sum, s) => sum + s.duracion, 0)
+  const fechaFin = new Date(cita.value.fecha)
+  fechaFin.setMinutes(fechaFin.getMinutes() + totalMinutos)
+  return fechaFin
+})
 
+function formatHora(fecha) {
+  if (!fecha) return '--:--'
+  const pad = (n) => n.toString().padStart(2, '0')
+  return `${pad(fecha.getHours())}:${pad(fecha.getMinutes())}`
+}
+
+watch([() => cita.value.fecha, () => cita.value.servicios], () => {
+  console.log('La cita terminaría a:', formatHora(fechaFinCalculada.value))
+})
 </script>
 
 <style>
@@ -255,8 +271,8 @@ async function guardarCita() {
   color: #000000;
 }
 .multiselect__option--highlight {
-    background: #25875b;
-    outline: 0;
-    color: #fff;
+  background: #25875b;
+  outline: 0;
+  color: #fff;
 }
 </style>

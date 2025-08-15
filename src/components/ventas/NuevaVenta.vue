@@ -1,6 +1,8 @@
 <!-- src/components/ventas/NuevaVenta.vue -->
 <template>
-  <div class="p-6 bg-white rounded shadow dark:bg-dark-900">
+ <div
+      class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+    >
     <h2 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">Registrar Nueva Venta</h2>
 
     <!-- Selector de producto -->
@@ -23,18 +25,20 @@
     </div>
 
     <!-- Tabla de productos agregados -->
-    <table class="w-full text-sm mb-4 border dark:border-gray-700">
-      <thead class="bg-gray-100 dark:bg-dark-800">
-        <tr>
-          <th class="p-2">Producto</th>
-          <th class="p-2">Precio</th>
-          <th class="p-2">Cantidad</th>
-          <th class="p-2">Subtotal</th>
-          <th class="p-2">Acción</th>
+    <table class="min-w-full">
+      <thead>
+        <tr class="border-b border-gray-200 dark:border-gray-700">
+          <th class="px-5 py-3 text-left w-3/11 sm:px-6">
+            <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Producto</p>
+          </th>
+          <th class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Precio</th>
+          <th class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Cantidad</th>
+          <th class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Subtotal</th>
+          <th class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Acción</th>
         </tr>
       </thead>
-      <tbody>
-        <tr v-for="(item, index) in venta.productos" :key="index">
+      <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+        <tr v-for="(item, index) in venta.productos" :key="index" class="border-t border-gray-100 dark:border-gray-800">
           <td class="p-2">{{ item.nombre }}</td>
           <td class="p-2">${{ item.precio }}</td>
           <td class="p-2">{{ item.cantidad }}</td>
