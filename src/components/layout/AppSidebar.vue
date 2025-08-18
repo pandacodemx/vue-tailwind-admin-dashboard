@@ -269,6 +269,12 @@ const menuGroups = [
         path: "/servicios",
       },
 
+      {
+        icon: UserCircleIcon,
+        name: "Paquetes",
+        path: "/paquetes",
+      },
+
     ],
   },
   {
@@ -278,6 +284,11 @@ const menuGroups = [
         icon: ArchiveIcon,
         name: "Productos",
         path: "/productos",
+      },  
+      {
+        icon: ArchiveIcon,
+        name: "Categorias",
+        path: "/categorias",
       },     
       {
         icon: SuccessIcon,

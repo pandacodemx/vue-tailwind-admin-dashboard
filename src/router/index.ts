@@ -71,6 +71,22 @@ const router = createRouter({
       },
     },
     {
+      path: '/categorias',
+      name: 'Categorias',
+      component: () => import('../views/Categorias/Categorias.vue'),
+      meta: {
+        title: 'Categorias',
+      },
+    },
+    {
+      path: '/paquetes',
+      name: 'Paquetes',
+      component: () => import('../views/Paquetes/Paquetes.vue'),
+      meta: {
+        title: 'Paquetes',
+      },
+    },
+    {
       path: '/ventas/nueva',
       name: 'Venta Nueva',
       component: () => import('../views/Ventas/Ventas.vue'),

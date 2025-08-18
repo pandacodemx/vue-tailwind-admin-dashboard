@@ -36,18 +36,23 @@ try {
         echo json_encode(['success' => false, 'message' => 'El horario seleccionado ya está ocupado.']);
         exit;
         }
+
+        $total = 0;
+        foreach ($servicios as $servicio) {
+            $total += floatval($servicio['precio']);
+        }    
     $pdo->beginTransaction();
 
     //Insertar cita
-    $stmt = $pdo->prepare('INSERT INTO citas (cliente_id, fecha, fecha_fin, notas, estado) VALUES (?, ?, ?, ?, ?)');
-    $stmt->execute([$cliente_id, $fecha, $fecha_fin, $notas, $estado]);
+    $stmt = $pdo->prepare('INSERT INTO citas (cliente_id, fecha, fecha_fin, notas, estado, total) VALUES (?, ?, ?, ?, ?, ?)');
+    $stmt->execute([$cliente_id, $fecha, $fecha_fin, $notas, $estado, $total]);
 
     $cita_id = $pdo->lastInsertId();
 
     //Insertar servicios relacionados
-    $stmtServ = $pdo->prepare('INSERT INTO cita_servicios (cita_id, servicio_id) VALUES (?, ?)');
+    $stmtServ = $pdo->prepare('INSERT INTO cita_servicios (cita_id, servicio_id, precio) VALUES (?, ?, ?)');
     foreach ($servicios as $servicio) {
-        $stmtServ->execute([$cita_id, $servicio['id']]);
+        $stmtServ->execute([$cita_id, $servicio['id'], $servicio['precio']]);
     }
 
     $pdo->commit();

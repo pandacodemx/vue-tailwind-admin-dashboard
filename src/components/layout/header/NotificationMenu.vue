@@ -144,14 +144,6 @@ const handleClickOutside = (event) => {
     closeDropdown()
   }
 }
-
-const handleViewAllClick = (event) => {
-  event.preventDefault()
-  // Handle the "View All Notification" action here
-  console.log('View All Notifications clicked')
-  closeDropdown()
-}
-
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
 })

@@ -7,7 +7,7 @@ $id = $data['id'] ?? null;
 $nombre = $data['nombre'] ?? '';
 $precio = $data['precio'] ?? '';
 $descripcion = $data['descripcion'] ?? '';
-$categoria = $data['categoria'] ?? '';
+$id_categoria = $data['id_categoria'];
 $stock = $data['stock'] ?? '';
 $stock_minimo = $data['stock_minimo'] ?? '';
 $activo = $data['activo'] ?? 1;
@@ -19,9 +19,9 @@ if (!$id) {
 }
 
 try {
-    $sql = "UPDATE productos SET nombre = ?, precio = ?, descripcion = ?, categoria = ?, stock = ?, stock_minimo = ?, activo = ? WHERE id = ?";
+    $sql = "UPDATE productos SET nombre = ?, precio = ?, descripcion = ?, id_categoria = ?, stock = ?, stock_minimo = ?, activo = ? WHERE id = ?";
     $stmt = $pdo->prepare($sql);
-    $success = $stmt->execute([$nombre, $precio, $descripcion, $categoria, $stock, $stock_minimo, $activo, $id]);
+    $success = $stmt->execute([$nombre, $precio, $descripcion, $id_categoria, $stock, $stock_minimo, $activo, $id]);
 
     echo json_encode(["success" => $success]);
 } catch (Exception $e) {

@@ -2,7 +2,7 @@
 require_once '../includes/secure_api.php';
 
 $stmt = $pdo->query("
-  SELECT c.id, c.fecha, c.fecha_fin, c.estado, c.notas, cl.nombre AS cliente_nombre
+  SELECT c.id, c.fecha, c.fecha_fin, c.estado, c.notas, c.total,  c.pagado, cl.nombre AS cliente_nombre
   FROM citas c
   INNER JOIN clientes cl ON c.cliente_id = cl.id
   ORDER BY c.fecha DESC

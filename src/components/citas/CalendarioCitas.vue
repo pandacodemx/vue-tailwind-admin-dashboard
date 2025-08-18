@@ -293,4 +293,8 @@ async function cargarEventos() {
 .vue-notification.warn {
   color: #000000;
 }
+
+.vue-notification.error {
+  color: #ffff;
+}
 </style>

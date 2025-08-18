@@ -3,8 +3,9 @@
     <!-- Título -->
     <h1 class="text-2xl font-bold text-gray-800 dark:text-white">📊 Dashboard de Citas</h1>
     <div class="flex gap-2">
-      <RouterLink to="/citas/nueva" class="btn-primary">+ Nueva Cita</RouterLink>
-      <RouterLink to="/citas/calendario" class="btn-secondary">📅 Ver Calendario</RouterLink>
+      <Button><RouterLink to="/citas/nueva" class="btn-primary">+ Nueva Cita</RouterLink></Button>
+
+      <Button><RouterLink to="/citas/calendario" class="btn-secondary">📅 Ver Calendario</RouterLink></Button>
     </div>
 
     <!-- Totales -->
@@ -75,6 +76,7 @@ import { ref, onMounted } from 'vue'
 import HttpService from '@/services/HttpService'
 import GraficaCitas from '@/components/dashboard/GraficaCitas.vue'
 import { verificarStockBajo, verificarCitasProximas } from '@/utils/notificaciones.js'
+import Button from '../ui/Button.vue'
 
 const resumen = ref({
   total: 0,

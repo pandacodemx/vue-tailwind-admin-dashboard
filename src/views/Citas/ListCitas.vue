@@ -56,6 +56,12 @@
                 <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Notas</p>
               </th>
               <th class="px-5 py-3 text-left w-2/11 sm:px-6">
+                <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Total</p>
+              </th>
+              <th class="px-5 py-3 text-left w-2/11 sm:px-6">
+                <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Pago</p>
+              </th>
+              <th class="px-5 py-3 text-left w-2/11 sm:px-6">
                 <p class="font-medium text-gray-500 text-theme-xs dark:text-gray-400">Acciones</p>
               </th>
             </tr>
@@ -65,6 +71,10 @@
               v-for="cita in citasPaginadas"
               :key="cita.id"
               class="border-t border-gray-100 dark:border-gray-800"
+              :class="{
+                'bg-gray-100 dark:bg-gray-700/30 line-through text-gray-500 dark:text-gray-400':
+                  cita.estado === 'cancelada',
+              }"
             >
               <td class="px-5 py-4 sm:px-6">
                 <div class="flex items-center gap-3">
@@ -98,6 +108,7 @@
                 <!-- Estado con dropdown -->
                 <div class="relative inline-block text-left">
                   <button
+                    v-if="cita.estado !== 'cancelada'"
                     @click="toggleDropdown(cita)"
                     class="inline-flex justify-center items-center px-3 py-1 rounded-full text-sm font-medium"
                     :class="{
@@ -134,9 +145,32 @@
                   </div>
                 </div>
               </td>
-              <td class="px-4 py-2">{{ cita.notas || '—' }}</td>
+
+              <td class="px-4 py-2 dark:text-white">{{ cita.notas || '—' }}</td>
+              <td class="px-5 py-4 sm:px-6">
+                <div class="flex items-center gap-3">
+                  <div>
+                    <span class="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                      $ {{ cita.total }}
+                    </span>
+                  </div>
+                </div>
+              </td>
+              <td class="px-4 py-2">
+                <span v-if="cita.pagado" class="px-2 py-1 bg-red-600 text-white rounded text-sm"
+                  >Pagado</span
+                >
+                <button
+                  v-else-if="cita.estado !== 'cancelada'"
+                  @click="registrarPago(cita)"
+                  class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                >
+                  Pagar
+                </button>
+              </td>
               <td class="px-4 py-2 space-x-2">
                 <button
+                  v-if="cita.estado !== 'cancelada'"
                   @click="solicitarEliminacionCita(cita)"
                   class="text-red-500 hover:underline"
                 >
@@ -349,6 +383,36 @@ async function confirmarEliminacionCita() {
       notify({
         title: 'Error',
         text: 'No se pudo cancelar la cita.',
+        type: 'error',
+      })
+    }
+  } catch (err) {
+    console.error(err)
+    notify({
+      title: 'Error',
+      text: 'Ocurrió un error inesperado.',
+      type: 'error',
+    })
+  }
+}
+
+async function registrarPago(cita) {
+  try {
+    const res = await HttpService.post('/citas/registrar_pago.php', {
+      id: cita.id,
+    })
+
+    if (res.success) {
+      notify({
+        title: 'Pago registrado',
+        text: `La cita de ${cita.cliente_nombre} fue marcada como pagada.`,
+        type: 'success',
+      })
+      await cargarCitas()
+    } else {
+      notify({
+        title: 'Error',
+        text: 'No se pudo registrar el pago.',
         type: 'error',
       })
     }

@@ -67,6 +67,10 @@
               ></textarea>
             </div>
 
+            <div class="mt-2 text-gray-700 dark:text-gray-300">
+              💰 Total estimado: <strong>${{ totalCita.toFixed(2) }}</strong>
+            </div>
+
             <!-- Botón -->
             <div class="pt-4">
               <button
@@ -220,6 +224,7 @@ async function guardarCita() {
     ...cita.value,
     fecha: formatFechaLocal(new Date(cita.value.fecha)),
     fecha_fin: fechaFin ? formatFechaLocal(fechaFin) : null,
+    total: totalCita.value,
   }
   try {
     const response = await HttpService.post('/citas/crear.php', payload)
@@ -241,6 +246,10 @@ async function guardarCita() {
     console.error('Error al guardar cita:', error)
   }
 }
+const totalCita = computed(() => {
+  if (!cita.value.servicios.length) return 0
+  return cita.value.servicios.reduce((total, s) => total + parseFloat(s.precio), 0)
+})
 const fechaFinCalculada = computed(() => {
   if (!cita.value.fecha || !cita.value.servicios.length) return null
   const totalMinutos = cita.value.servicios.reduce((sum, s) => sum + s.duracion, 0)

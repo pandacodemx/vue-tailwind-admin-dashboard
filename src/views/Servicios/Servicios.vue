@@ -23,6 +23,28 @@
             </svg>
             Nuevo Servicio
           </button>
+
+          <button
+            @click="abrirPaqueteModal"
+            class="edit-button bg-green-500 hover:bg-green-600 text-white"
+          >
+            <svg
+              class="fill-current"
+              width="18"
+              height="18"
+              viewBox="0 0 18 18"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                fill-rule="evenodd"
+                clip-rule="evenodd"
+                d="M15.0911 2.78206C14.2125 1.90338 12.7878 1.90338 11.9092 2.78206L4.57524 10.116C4.26682 10.4244 4.0547 10.8158 3.96468 11.2426L3.31231 14.3352C3.25997 14.5833 3.33653 14.841 3.51583 15.0203C3.69512 15.1996 3.95286 15.2761 4.20096 15.2238L7.29355 14.5714C7.72031 14.4814 8.11172 14.2693 8.42013 13.9609L15.7541 6.62695C16.6327 5.74827 16.6327 4.32365 15.7541 3.44497L15.0911 2.78206ZM12.9698 3.84272C13.2627 3.54982 13.7376 3.54982 14.0305 3.84272L14.6934 4.50563C14.9863 4.79852 14.9863 5.2734 14.6934 5.56629L14.044 6.21573L12.3204 4.49215L12.9698 3.84272ZM11.2597 5.55281L5.6359 11.1766C5.53309 11.2794 5.46238 11.4099 5.43238 11.5522L5.01758 13.5185L6.98394 13.1037C7.1262 13.0737 7.25666 13.003 7.35947 12.9002L12.9833 7.27639L11.2597 5.55281Z"
+                fill=""
+              />
+            </svg>
+            Nuevo Paquete
+          </button>
         </div>
         <!--TABLA SERVICIOS-->
         <input
@@ -47,8 +69,7 @@
               variant="secondary"
               class="dark:text-white"
               ><ChevronLeftIcon
-              /></Button
-            >
+            /></Button>
             <span class="text-sm dark:text-white">
               Página {{ paginaActual }} de {{ totalPaginas }}
             </span>
@@ -58,10 +79,8 @@
               variant="secondary"
               class="dark:text-white"
               ><ChevronRightIcon
-              /></Button
-            >
-          </div>         
-
+            /></Button>
+          </div>
         </div>
 
         <!--MODAL CREACION / EDICION-->
@@ -183,7 +202,7 @@
                           class="dark:bg-dark-900 h-11 w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90"
                         >
                           <option value="" class="dark:text-white">
-                            Seleccionar estado cliente
+                            Seleccionar estado servicio
                           </option>
                           <option value="1" class="dark:text-white">Activo</option>
                           <option value="0" class="dark:text-white">Inactivo</option>
@@ -199,7 +218,7 @@
                         <input
                           v-model="servicioEditando.detalles"
                           type="text"
-                          placeholder="Detalles del servicio"                     
+                          placeholder="Detalles del servicio"
                           class="dark:bg-dark-900 h-11 w-full appearance-none rounded-lg border border-gray-300 bg-transparent bg-none px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
                         />
                       </div>
@@ -248,6 +267,103 @@
             </div>
           </template>
         </Modal>
+
+        <Modal v-if="isPaqueteModalOpen">
+          <template #body>
+            <div
+              class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11"
+            >            
+              <button
+                @click="closePaqueteModal"
+                class="absolute right-5 top-5 z-999 flex h-11 w-11 items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-white/[0.07]"
+              >
+                ✕
+              </button>
+
+              <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
+                Crear Paquete de Servicios
+              </h4>
+              <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
+                Selecciona los servicios que formarán parte del paquete.
+              </p>
+
+              <div class="mb-4 flex gap-4 items-end">
+                <Multiselect
+                  v-model="servicioSeleccionado"
+                  :options="servicios"
+                  :custom-label="(s) => `${s.nombre} - $${s.precio}`"
+                  placeholder="--Selecciona servicios--"
+                  track-by="id"
+                  :searchable="true"
+                  :sort-by="['nombre']"
+                  :sort-direction="'asc'"
+                  :multiple="true"
+                />
+
+                <button @click="agregarAlPaquete" class="text-white px-4 py-2 rounded bg-green-600">
+                  Agregar
+                </button>
+              </div>
+
+             
+              <div v-if="paquete.length" class="mb-4">
+                <h5 class="mb-2 font-medium text-gray-800 dark:text-white/90">
+                  Servicios en el paquete:
+                </h5>
+                <ul class="space-y-2">
+                  <li
+                    v-for="(s, index) in paquete"
+                    :key="s.id"
+                    class="flex justify-between items-center p-2 border rounded dark:border-gray-700"
+                  >
+                    <span>{{ s.nombre }} - ${{ s.precio }}</span>
+                    <button
+                      @click="quitarDelPaquete(index)"
+                      class="text-red-600 hover:text-red-800"
+                    >
+                      Eliminar
+                    </button>
+                  </li>
+                </ul>
+              </div>
+
+             
+              <div class="mt-4 text-right font-semibold text-gray-800 dark:text-white/90">
+                Total: ${{ totalPaquete }}
+              </div>
+
+              <div class="mt-4">
+                <label class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-400"
+                  >Nombre del paquete:</label
+                >
+                <input
+                  v-model="nombrePaquete"
+                  type="text"
+                  placeholder="Paquete Barbería Completo"
+                  class="w-full rounded-lg border px-4 py-2 dark:bg-gray-900 dark:text-white/90 dark:border-gray-700"
+                />
+              </div>
+
+            
+              <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
+                <button
+                  @click="closePaqueteModal"
+                  type="button"
+                  class="flex w-full justify-center rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 sm:w-auto dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03]"
+                >
+                  Cerrar
+                </button>
+                <button
+                  @click="guardarPaquete"
+                  type="button"
+                  class="flex w-full justify-center rounded-lg bg-brand-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-600 sm:w-auto"
+                >
+                  Guardar Paquete
+                </button>
+              </div>
+            </div>
+          </template>
+        </Modal>
       </ComponentCard>
     </div>
   </AdminLayout>
@@ -265,19 +381,26 @@ import { notify } from '@kyvg/vue3-notification'
 import ChevronLeftIcon from '@/icons/ChevronLeftIcon.vue'
 import ChevronRightIcon from '@/icons/ChevronRightIcon.vue'
 const currentPageTitle = ref('Tabla de Servicios')
+import Multiselect from 'vue-multiselect'
+import 'vue-multiselect/dist/vue-multiselect.min.css'
 const isModalOpen = ref(false)
 const isDeleteModalOpen = ref(false)
-const isServicioModal = ref(false)
 const servicioAEliminar = ref(null)
 const servicioEditando = ref(null)
 const servicios = ref([])
 const filtro = ref('')
 const paginaActual = ref(1)
 const porPagina = 10
+const isPaqueteModalOpen = ref(false)
+const servicioSeleccionado = ref([])
+const paquete = ref([])
+const nombrePaquete = ref('')
 
 const serviciosFiltrados = computed(() =>
   servicios.value.filter((servicio) =>
-    `${servicio.nombre} ${servicio.precio} ${servicio.categoria}`.toLowerCase().includes(filtro.value.toLowerCase()),
+    `${servicio.nombre} ${servicio.precio} ${servicio.categoria}`
+      .toLowerCase()
+      .includes(filtro.value.toLowerCase()),
   ),
 )
 
@@ -288,6 +411,52 @@ const serviciosPaginados = computed(() => {
   return serviciosFiltrados.value.slice(inicio, inicio + porPagina)
 })
 
+function abrirPaqueteModal() {
+  isPaqueteModalOpen.value = true
+  paquete.value = []
+  servicioSeleccionado.value = []
+  nombrePaquete.value = ''
+}
+
+function closePaqueteModal() {
+  isPaqueteModalOpen.value = false
+}
+function agregarAlPaquete() {
+  servicioSeleccionado.value.forEach(s => {
+    if (!paquete.value.some(ps => ps.id === s.id)) {
+      paquete.value.push(s)
+    }
+  })
+  servicioSeleccionado.value = []
+}
+function quitarDelPaquete(index) {
+  paquete.value.splice(index, 1)
+}
+
+const totalPaquete = computed(() => paquete.value.reduce((acc, s) => acc + Number(s.precio), 0))
+
+async function guardarPaquete() {
+  if (!nombrePaquete.value || !paquete.value.length) {
+    notify({ title: 'Error', text: 'Completa el nombre y agrega al menos un servicio', type: 'error' })
+    return
+  }
+
+  try {
+    const response = await HttpService.post('/paquetes/crear.php', {
+      nombre: nombrePaquete.value,
+      servicios: paquete.value.map(s => s.id),
+    })
+
+    if (response.success) {
+      notify({ title: 'Éxito', text: 'Paquete creado correctamente', type: 'success' })
+      closePaqueteModal()
+    } else {
+      notify({ title: 'Error', text: 'No se pudo crear el paquete', type: 'error' })
+    }
+  } catch (error) {
+    console.error('Error al guardar paquete:', error)
+  }
+}
 function cambiarPagina(nueva) {
   if (nueva >= 1 && nueva <= totalPaginas.value) {
     paginaActual.value = nueva
@@ -308,7 +477,7 @@ async function cargarServicios() {
 }
 
 function openModal() {
-  servicioEditando.value = { nombre: '', precio: '', duracion: '', status: '' , detalles: ''}
+  servicioEditando.value = { nombre: '', precio: '', duracion: '', status: 1, detalles: '' }
   isModalOpen.value = true
 }
 
