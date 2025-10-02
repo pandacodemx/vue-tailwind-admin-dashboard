@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 19-08-2025 a las 00:50:01
+-- Tiempo de generación: 02-10-2025 a las 23:47:56
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -71,7 +71,13 @@ INSERT INTO `citas` (`id`, `cliente_id`, `fecha`, `fecha_fin`, `estado`, `notas`
 (24, 3, '2025-08-16 12:00:00', '2025-08-16 13:00:00', 'atendida', '', '2025-08-15 19:41:55', 0.00, 1, '2025-08-18 12:04:33'),
 (25, 1, '2025-08-16 13:00:00', '2025-08-16 14:45:00', 'atendida', '', '2025-08-15 19:57:58', 0.00, 1, '2025-08-18 12:00:15'),
 (26, 3, '2025-08-18 13:00:00', '2025-08-18 14:45:00', 'atendida', 'Cita Mario Dominguez texto texto texto ', '2025-08-18 16:58:10', 0.00, 1, '2025-08-18 16:01:16'),
-(29, 1, '2025-08-19 11:00:00', '2025-08-19 12:45:00', 'pendiente', '', '2025-08-18 17:38:38', 215.00, 0, NULL);
+(29, 1, '2025-08-18 17:00:00', '2025-08-18 18:45:00', 'pendiente', '', '2025-08-18 17:38:38', 215.00, 0, NULL),
+(30, 2, '2025-08-19 10:00:00', '2025-08-19 11:30:00', 'pendiente', 'Prueba Servicio ', '2025-08-19 15:58:38', 450.00, 0, NULL),
+(34, 2, '2025-08-20 10:22:00', '2025-08-20 12:52:00', 'pendiente', 'werfsd', '2025-08-19 16:22:34', 570.00, 0, NULL),
+(35, 1, '2025-08-19 16:00:00', '2025-08-19 16:45:00', 'pendiente', 'as', '2025-08-19 18:02:30', 95.00, 0, NULL),
+(36, 2, '2025-08-23 12:04:00', '2025-08-23 13:04:00', 'pendiente', '', '2025-08-19 18:04:57', 120.00, 0, NULL),
+(37, 3, '2025-08-21 12:05:00', '2025-08-21 12:50:00', 'pendiente', '', '2025-08-19 18:05:28', 95.00, 0, NULL),
+(38, 3, '2025-10-04 13:30:00', '2025-10-04 15:45:00', 'pendiente', 'Prueba de ctia', '2025-10-02 20:30:36', 545.00, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -100,7 +106,15 @@ INSERT INTO `cita_servicios` (`id`, `cita_id`, `servicio_id`, `precio`) VALUES
 (31, 26, 2, 0.00),
 (32, 26, 1, 0.00),
 (33, 29, 2, 120.00),
-(34, 29, 1, 95.00);
+(34, 29, 1, 95.00),
+(35, 30, 3, 450.00),
+(36, 34, 3, 450.00),
+(37, 34, 2, 120.00),
+(38, 35, 1, 95.00),
+(39, 36, 2, 120.00),
+(40, 37, 1, 95.00),
+(41, 38, 3, 450.00),
+(42, 38, 1, 95.00);
 
 -- --------------------------------------------------------
 
@@ -147,7 +161,7 @@ CREATE TABLE `paquetes` (
 INSERT INTO `paquetes` (`id`, `nombre`, `precio`, `duracion`, `status`, `detalles`) VALUES
 (1, 'Paquete Papa+Hijo5', 541.50, '150', 1, ''),
 (2, 'Alaciado+Niño', 517.75, '135', 0, ''),
-(3, 'Niño+PAPA', 204.25, '105', 1, '');
+(3, 'Niño+PAPA', 598.50, '195', 1, '');
 
 -- --------------------------------------------------------
 
@@ -170,8 +184,9 @@ INSERT INTO `paquete_servicio` (`id`, `id_paquete`, `id_servicio`) VALUES
 (4, 2, 1),
 (7, 1, 2),
 (8, 1, 3),
-(11, 3, 2),
-(12, 3, 1);
+(13, 3, 2),
+(14, 3, 1),
+(15, 3, 3);
 
 -- --------------------------------------------------------
 
@@ -186,6 +201,7 @@ CREATE TABLE `productos` (
   `precio` decimal(10,2) NOT NULL,
   `stock` int(11) DEFAULT 0,
   `stock_minimo` int(11) DEFAULT 0,
+  `imagen` varchar(255) DEFAULT NULL,
   `descripcion` text DEFAULT NULL,
   `activo` tinyint(1) DEFAULT 1,
   `fecha_registro` datetime DEFAULT current_timestamp(),
@@ -196,9 +212,9 @@ CREATE TABLE `productos` (
 -- Volcado de datos para la tabla `productos`
 --
 
-INSERT INTO `productos` (`id`, `nombre`, `categoria`, `precio`, `stock`, `stock_minimo`, `descripcion`, `activo`, `fecha_registro`, `id_categoria`) VALUES
-(1, 'Aceite Para Barba Aroma Cítricos, Don Porfirio, 30ML', 'Aceites Naturales', 310.00, 47, 5, 'Aceite Para Barba Aroma Cítricos, Don Porfirio, 30ML Prueba12', 1, '2025-08-04 09:43:34', 1),
-(2, 'Tinte de cabello Rubio', 'Aceites Naturales', 130.00, 14, 5, 'Tinte de cabello Rubio', 1, '2025-08-04 11:13:32', 2);
+INSERT INTO `productos` (`id`, `nombre`, `categoria`, `precio`, `stock`, `stock_minimo`, `imagen`, `descripcion`, `activo`, `fecha_registro`, `id_categoria`) VALUES
+(1, 'Aceite Para Barba Aroma Cítricos, Don Porfirio, 30ML', 'Aceites Naturales', 310.00, 47, 5, 'uploads/productos/68deebf778c74_1759439863.webp', 'Aceite Para Barba Aroma Cítricos, Don Porfirio, 30ML Prueba12', 1, '2025-08-04 09:43:34', 1),
+(2, 'Tinte de cabello Rubio', 'Aceites Naturales', 130.00, 14, 5, NULL, 'Tinte de cabello Rubio', 1, '2025-08-04 11:13:32', 2);
 
 -- --------------------------------------------------------
 
@@ -421,13 +437,13 @@ ALTER TABLE `categorias`
 -- AUTO_INCREMENT de la tabla `citas`
 --
 ALTER TABLE `citas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- AUTO_INCREMENT de la tabla `cita_servicios`
 --
 ALTER TABLE `cita_servicios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- AUTO_INCREMENT de la tabla `clientes`
@@ -445,7 +461,7 @@ ALTER TABLE `paquetes`
 -- AUTO_INCREMENT de la tabla `paquete_servicio`
 --
 ALTER TABLE `paquete_servicio`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT de la tabla `productos`

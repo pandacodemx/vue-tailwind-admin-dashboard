@@ -11,6 +11,7 @@ $sql = "SELECT
             p.activo,
             p.fecha_registro,
             p.id_categoria,
+            p.imagen,
             c.nombre AS categoria
         FROM productos p
         INNER JOIN categorias c ON p.id_categoria = c.id

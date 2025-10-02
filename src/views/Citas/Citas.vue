@@ -10,48 +10,44 @@
             <!-- Cliente -->
             <div>
               <label class="block mb-1 text-gray-700 dark:text-gray-300">Cliente</label>
-              <Multiselect
-                v-model="cita.cliente"
-                :options="clientes"
-                :custom-label="(c) => `${c.nombre} - ${c.telefono}`"
-                placeholder="Selecciona un cliente"
-                track-by="id"
-                :searchable="true"
-                :sort-by="['nombre']"
-                :sort-direction="'asc'"
-              />
+              <Multiselect v-model="cita.cliente" :options="clientes"
+                :custom-label="(c) => `${c.nombre} - ${c.telefono}`" placeholder="Selecciona un cliente" track-by="id"
+                :searchable="true" :sort-by="['nombre']" :sort-direction="'asc'" />
             </div>
 
             <!-- Servicios -->
             <div>
               <label class="block mb-1 text-gray-700 dark:text-gray-300">Servicios</label>
+              <Multiselect v-model="cita.servicios" :options="servicios" :multiple="true" :close-on-select="false"
+                :clear-on-select="false" placeholder="Selecciona uno o varios servicios"
+                :custom-label="(s) => `${s.nombre} (${formatearDuracion(s.duracion)})`" track-by="id"
+                :searchable="true" />
+            </div>
+
+            <!-- Paquetes 
+            <div>
+              <label class="block mb-1 text-gray-700 dark:text-gray-300">Paquetes</label>
               <Multiselect
-                v-model="cita.servicios"
-                :options="servicios"
+                v-model="cita.paquetes"
+                :options="paquetes"
                 :multiple="true"
                 :close-on-select="false"
                 :clear-on-select="false"
-                placeholder="Selecciona uno o varios servicios"
-                :custom-label="(s) => `${s.nombre} (${formatearDuracion(s.duracion)})`"
+                placeholder="Selecciona uno o varios paquetes"
+                :custom-label="
+                  (p) => `${p.nombre} (${formatearDuracion(p.duracion)}) - $${p.precio}`
+                "
                 track-by="id"
                 :searchable="true"
               />
-            </div>
+            </div>-->
 
             <!-- Fecha y Hora -->
             <div>
               <label class="block mb-1 text-gray-700 dark:text-gray-300">Fecha y hora</label>
-              <Datepicker
-                v-model="cita.fecha"
-                :locale="es"
-                :enable-time-picker="true"
-                :minute-increment="15"
-                format="dd/MM/yyyy HH:mm"
-                placeholder="Selecciona fecha y hora"
-                :disabled-dates="(date) => !esDiaPermitido(date)"
-                auto-apply
-                class="w-full"
-              />
+              <Datepicker v-model="cita.fecha" :locale="es" :enable-time-picker="true" :minute-increment="15"
+                format="dd/MM/yyyy HH:mm" placeholder="Selecciona fecha y hora"
+                :disabled-dates="(date) => !esDiaPermitido(date)" auto-apply class="w-full" />
             </div>
             <div class="mt-2 text-gray-700 dark:text-gray-300">
               ⏰ Hora estimada de finalización: <strong>{{ formatHora(fechaFinCalculada) }}</strong>
@@ -59,12 +55,9 @@
 
             <div>
               <label class="block mb-1 text-gray-700 dark:text-gray-300">Nota</label>
-              <textarea
-                v-model="cita.notas"
-                rows="3"
+              <textarea v-model="cita.notas" rows="3"
                 class="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:text-white"
-                placeholder="Agrega alguna nota..."
-              ></textarea>
+                placeholder="Agrega alguna nota..."></textarea>
             </div>
 
             <div class="mt-2 text-gray-700 dark:text-gray-300">
@@ -73,10 +66,7 @@
 
             <!-- Botón -->
             <div class="pt-4">
-              <button
-                type="submit"
-                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-              >
+              <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
                 Guardar Cita
               </button>
             </div>
@@ -103,18 +93,29 @@ import 'vue-multiselect/dist/vue-multiselect.min.css'
 const cita = ref({
   cliente: null,
   servicios: [],
+  paquetes: [],
   fecha: new Date(),
+  notas: ''
 })
 
 const horariosAtencion = ref([])
 const clientes = ref([])
 const servicios = ref([])
+const paquetes = ref([])
 
 onMounted(() => {
   cargarClientes()
   cargarServicios()
+  cargarPaquetes()
   cargarHorarios()
 })
+
+/**PAQUETES**/
+async function cargarPaquetes() {
+  const res = await HttpService.get('/paquetes/obtener.php')
+  paquetes.value = res
+}
+
 function formatearDuracion(minutos) {
   if (minutos < 60) return `${minutos} min`
   const horas = Math.floor(minutos / 60)
@@ -187,9 +188,19 @@ function formatFechaLocal(fecha) {
 }
 
 function calcularFechaFin() {
-  if (!cita.value.fecha || !cita.value.servicios.length) return null
+  if (!cita.value.fecha) return null
 
-  const totalMinutos = cita.value.servicios.reduce((total, serv) => total + serv.duracion, 0)
+  let totalMinutos = 0
+
+  // Servicios individuales
+  totalMinutos += (cita.value.servicios || []).reduce((total, serv) => total + serv.duracion, 0)
+
+  // Servicios que vienen dentro de los paquetes
+  cita.value.paquetes.forEach(paquete => {
+    if (paquete.servicios && paquete.servicios.length) {
+      totalMinutos += paquete.servicios.reduce((total, s) => total + s.duracion, 0)
+    }
+  })
 
   const fechaFin = new Date(cita.value.fecha)
   fechaFin.setMinutes(fechaFin.getMinutes() + totalMinutos)
@@ -197,7 +208,21 @@ function calcularFechaFin() {
   return fechaFin
 }
 
+function prepararServiciosParaGuardar(cita) {
+  const servicios = [...cita.servicios]
+
+  // Agregar servicios de cada paquete
+  cita.paquetes.forEach(paquete => {
+    if (paquete.servicios && paquete.servicios.length) {
+      servicios.push(...paquete.servicios)
+    }
+  })
+
+  return servicios
+}
+
 async function guardarCita() {
+
   if (!esHoraPermitida(cita.value.fecha)) {
     notify({
       title: 'Horario no válido',
@@ -219,12 +244,17 @@ async function guardarCita() {
     })
     return
   }
-
+  const serviciosFinales = prepararServiciosParaGuardar(cita.value)
   const payload = {
-    ...cita.value,
+    cliente_id: cita.value.cliente.id,
     fecha: formatFechaLocal(new Date(cita.value.fecha)),
     fecha_fin: fechaFin ? formatFechaLocal(fechaFin) : null,
+    notas: cita.value.notas,
     total: totalCita.value,
+    servicios: serviciosFinales.map((s) => ({
+      id: s.id,
+      precio: s.precio,
+    })),
   }
   try {
     const response = await HttpService.post('/citas/crear.php', payload)
@@ -234,6 +264,7 @@ async function guardarCita() {
         text: 'La cita fue guardada correctamente.',
         type: 'success',
       })
+      resetFormulario()
       cita.value = { cliente: null, fecha: new Date(), servicios: [], notas: '' }
     } else {
       notify({
@@ -247,15 +278,20 @@ async function guardarCita() {
   }
 }
 const totalCita = computed(() => {
-  if (!cita.value.servicios.length) return 0
-  return cita.value.servicios.reduce((total, s) => total + parseFloat(s.precio), 0)
+  let total = 0
+
+  // Servicios
+  total += cita.value.servicios.reduce((sum, s) => sum + parseFloat(s.precio), 0)
+
+  // Paquete //Ya tiene descuento aplic
+  total += cita.value.paquetes.reduce((sum, p) => sum + parseFloat(p.precio), 0)
+
+  return total
 })
+
 const fechaFinCalculada = computed(() => {
-  if (!cita.value.fecha || !cita.value.servicios.length) return null
-  const totalMinutos = cita.value.servicios.reduce((sum, s) => sum + s.duracion, 0)
-  const fechaFin = new Date(cita.value.fecha)
-  fechaFin.setMinutes(fechaFin.getMinutes() + totalMinutos)
-  return fechaFin
+  if (!cita.value.fecha) return null
+  return calcularFechaFin()
 })
 
 function formatHora(fecha) {
@@ -263,6 +299,17 @@ function formatHora(fecha) {
   const pad = (n) => n.toString().padStart(2, '0')
   return `${pad(fecha.getHours())}:${pad(fecha.getMinutes())}`
 }
+
+function resetFormulario() {
+  cita.value = {
+    cliente: null,
+    servicios: [],
+    paquetes: [],
+    fecha: new Date(),
+    notas: ''
+  }
+}
+
 
 watch([() => cita.value.fecha, () => cita.value.servicios], () => {
   console.log('La cita terminaría a:', formatHora(fechaFinCalculada.value))
@@ -273,12 +320,15 @@ watch([() => cita.value.fecha, () => cita.value.servicios], () => {
 .vue-notification.warn {
   color: #000000;
 }
+
 .vue-notification.error {
   color: #ffff;
 }
+
 .vue-notification.success {
   color: #000000;
 }
+
 .multiselect__option--highlight {
   background: #25875b;
   outline: 0;

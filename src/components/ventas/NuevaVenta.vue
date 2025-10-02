@@ -1,22 +1,13 @@
 <!-- src/components/ventas/NuevaVenta.vue -->
 <template>
- <div
-      class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
-    >
+  <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
     <h2 class="text-xl font-bold mb-4 text-gray-800 dark:text-white">Registrar Nueva Venta</h2>
 
     <!-- Selector de producto -->
     <div class="flex gap-4 mb-4">
-      <Multiselect
-        v-model="productoSeleccionado"
-        :options="productos"
-        :custom-label="(c) => `${c.nombre} - $${c.precio}`"
-        placeholder="--Selecciona un producto--"
-        track-by="id"
-        :searchable="true"
-        :sort-by="['nombre']"
-        :sort-direction="'asc'"
-      />
+      <Multiselect v-model="productoSeleccionado" :options="productos"
+        :custom-label="(c) => `${c.nombre} - $${c.precio}`" placeholder="--Selecciona un producto--" track-by="id"
+        :searchable="true" :sort-by="['nombre']" :sort-direction="'asc'" />
 
       <input type="number" min="1" v-model.number="cantidad" class="w-24 p-2 rounded border" />
       <button @click="agregarProducto" class=" text-white px-4 py-2 rounded bg-amber-800">
@@ -129,7 +120,7 @@ async function guardarVenta() {
   if (res.success) {
     const ventaData = {
       id: res.venta_id,
-      fecha: new Date(),    
+      fecha: new Date(),
       metodo_pago: payload.metodo_pago,
       total: payload.total,
       productos: venta.value.productos,
@@ -214,9 +205,10 @@ function imprimirTicket(venta) {
 
 <style>
 .vue-notification.success {
-  color: #181717; 
+  color: #181717;
 }
+
 .vue-notification.warn {
-  color: #181717; 
+  color: #181717;
 }
 </style>
