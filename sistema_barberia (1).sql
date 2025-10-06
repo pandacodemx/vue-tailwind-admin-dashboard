@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-10-2025 a las 23:47:56
+-- Tiempo de generación: 06-10-2025 a las 23:53:46
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -77,7 +77,8 @@ INSERT INTO `citas` (`id`, `cliente_id`, `fecha`, `fecha_fin`, `estado`, `notas`
 (35, 1, '2025-08-19 16:00:00', '2025-08-19 16:45:00', 'pendiente', 'as', '2025-08-19 18:02:30', 95.00, 0, NULL),
 (36, 2, '2025-08-23 12:04:00', '2025-08-23 13:04:00', 'pendiente', '', '2025-08-19 18:04:57', 120.00, 0, NULL),
 (37, 3, '2025-08-21 12:05:00', '2025-08-21 12:50:00', 'pendiente', '', '2025-08-19 18:05:28', 95.00, 0, NULL),
-(38, 3, '2025-10-04 13:30:00', '2025-10-04 15:45:00', 'pendiente', 'Prueba de ctia', '2025-10-02 20:30:36', 545.00, 0, NULL);
+(38, 3, '2025-10-04 10:30:00', '2025-10-04 12:45:00', 'atendida', 'Prueba de ctia', '2025-10-02 20:30:36', 545.00, 1, '2025-10-06 13:53:21'),
+(39, 2, '2025-10-02 15:59:00', '2025-10-02 19:14:00', 'atendida', '', '2025-10-02 21:59:40', 665.00, 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -114,7 +115,10 @@ INSERT INTO `cita_servicios` (`id`, `cita_id`, `servicio_id`, `precio`) VALUES
 (39, 36, 2, 120.00),
 (40, 37, 1, 95.00),
 (41, 38, 3, 450.00),
-(42, 38, 1, 95.00);
+(42, 38, 1, 95.00),
+(43, 39, 3, 450.00),
+(44, 39, 2, 120.00),
+(45, 39, 1, 95.00);
 
 -- --------------------------------------------------------
 
@@ -213,8 +217,8 @@ CREATE TABLE `productos` (
 --
 
 INSERT INTO `productos` (`id`, `nombre`, `categoria`, `precio`, `stock`, `stock_minimo`, `imagen`, `descripcion`, `activo`, `fecha_registro`, `id_categoria`) VALUES
-(1, 'Aceite Para Barba Aroma Cítricos, Don Porfirio, 30ML', 'Aceites Naturales', 310.00, 47, 5, 'uploads/productos/68deebf778c74_1759439863.webp', 'Aceite Para Barba Aroma Cítricos, Don Porfirio, 30ML Prueba12', 1, '2025-08-04 09:43:34', 1),
-(2, 'Tinte de cabello Rubio', 'Aceites Naturales', 130.00, 14, 5, NULL, 'Tinte de cabello Rubio', 1, '2025-08-04 11:13:32', 2);
+(1, 'Aceite Para Barba Aroma Cítricos, Don Porfirio, 30ML', 'Aceites Naturales', 310.00, 42, 5, 'uploads/productos/68deebf778c74_1759439863.webp', 'Aceite Para Barba Aroma Cítricos, Don Porfirio, 30ML Prueba12', 1, '2025-08-04 09:43:34', 1),
+(2, 'Tinte de cabello Rubio', 'Aceites Naturales', 130.00, 0, 5, 'uploads/productos/68e4319108ba4_1759785361.webp', 'Tinte de cabello Rubio', 1, '2025-08-04 11:13:32', 2);
 
 -- --------------------------------------------------------
 
@@ -303,7 +307,13 @@ INSERT INTO `ventas` (`id`, `fecha`, `total`, `usuario_id`, `cliente_id`, `metod
 (14, '2025-08-05 14:23:33', 620.00, 1, NULL, 'efectivo', 'completada'),
 (15, '2025-08-08 11:18:28', 310.00, 1, NULL, 'efectivo', 'completada'),
 (16, '2025-08-15 14:00:10', 1240.00, 1, NULL, 'efectivo', 'completada'),
-(17, '2025-08-18 10:57:07', 1060.00, 1, NULL, 'efectivo', 'completada');
+(17, '2025-08-18 10:57:07', 1060.00, 1, NULL, 'efectivo', 'completada'),
+(18, '2025-10-02 15:55:54', 390.00, 1, NULL, 'efectivo', 'completada'),
+(19, '2025-10-02 15:55:56', 390.00, 1, NULL, 'efectivo', 'completada'),
+(20, '2025-10-02 15:55:57', 390.00, 1, NULL, 'efectivo', 'completada'),
+(21, '2025-10-02 15:55:57', 390.00, 1, NULL, 'efectivo', 'completada'),
+(22, '2025-10-06 15:17:16', 130.00, 1, NULL, 'efectivo', 'completada'),
+(23, '2025-10-06 15:33:27', 1680.00, 1, NULL, 'transferencia', 'completada');
 
 -- --------------------------------------------------------
 
@@ -343,7 +353,14 @@ INSERT INTO `venta_detalles` (`id`, `venta_id`, `producto_id`, `cantidad`, `prec
 (16, 16, 1, 1, 310.00, 310.00),
 (17, 16, 1, 3, 310.00, 930.00),
 (18, 17, 1, 3, 310.00, 930.00),
-(19, 17, 2, 1, 130.00, 130.00);
+(19, 17, 2, 1, 130.00, 130.00),
+(20, 18, 2, 3, 130.00, 390.00),
+(21, 19, 2, 3, 130.00, 390.00),
+(22, 20, 2, 3, 130.00, 390.00),
+(23, 21, 2, 3, 130.00, 390.00),
+(24, 22, 2, 1, 130.00, 130.00),
+(25, 23, 1, 5, 310.00, 1550.00),
+(26, 23, 2, 1, 130.00, 130.00);
 
 --
 -- Índices para tablas volcadas
@@ -437,13 +454,13 @@ ALTER TABLE `categorias`
 -- AUTO_INCREMENT de la tabla `citas`
 --
 ALTER TABLE `citas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=40;
 
 --
 -- AUTO_INCREMENT de la tabla `cita_servicios`
 --
 ALTER TABLE `cita_servicios`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT de la tabla `clientes`
@@ -485,13 +502,13 @@ ALTER TABLE `usuarios`
 -- AUTO_INCREMENT de la tabla `ventas`
 --
 ALTER TABLE `ventas`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT de la tabla `venta_detalles`
 --
 ALTER TABLE `venta_detalles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- Restricciones para tablas volcadas
