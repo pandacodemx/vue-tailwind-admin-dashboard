@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
-  >
+  <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
     <div class="max-w-full overflow-x-auto custom-scrollbar">
       <table class="min-w-full">
         <thead>
@@ -24,13 +22,9 @@
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-          <tr
-            v-for="cliente in clientes"
-            :key="cliente.id"
-            class="border-t border-gray-100 dark:border-gray-800"
-          >
+          <tr v-for="cliente in clientes" :key="cliente.id" class="border-t border-gray-100 dark:border-gray-800">
             <td class="px-5 py-4 sm:px-6">
-              <div class="flex items-center gap-3">                
+              <div class="flex items-center gap-3">
                 <div>
                   <span class="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
                     {{ cliente.nombre }}
@@ -52,19 +46,19 @@
               </div>
             </td>
             <td class="px-5 py-4 sm:px-6 text-theme-sm">
-              <span
-                  :class="{
-                    'text-green-700 font-medium ': cliente.status == 1,
-                    'text-red-600 font-medium': cliente.status == 0,
-                  }"
-                >
-                  {{ cliente.status == 1 ? 'Activo' : 'Inactivo' }}
-                </span>
+              <span :class="{
+                'text-green-700 font-medium ': cliente.status == 1,
+                'text-red-600 font-medium': cliente.status == 0,
+              }">
+                {{ cliente.status == 1 ? 'Activo' : 'Inactivo' }}
+              </span>
             </td>
             <td class="px-5 py-4 sm:px-6 flex items-center gap-2">
-              <button @click="$emit('editar', cliente)" title="Editar" class="dark:text-white">✏️</button>
+              <button @click="$emit('editar', cliente)" title="Editar"
+                class="dark:text-white ease-in-out hover:scale-125 hover:duration-300 ">✏️</button>
 
-              <button @click="$emit('eliminar', cliente)" class="text-red-500 hover:underline dark:text-white">
+              <button @click="$emit('eliminar', cliente)"
+                class="text-red-500 hover:underline dark:text-white ease-in-out hover:scale-125 hover:duration-300 ">
                 🗑️
               </button>
             </td>

@@ -55,6 +55,14 @@ const router = createRouter({
       },
     },
     {
+      path: '/citas/pagadas',
+      name: 'Citas Pagadas',
+      component: () => import('../views/Citas/CitasPagadas.vue'),
+      meta: {
+        title: 'Citas Pagadas',
+      },
+    },
+    {
       path: '/citas/calendario',
       name: 'Calendario',
       component: () => import('../views/Citas/Calendario.vue'),

@@ -3,18 +3,21 @@
     <!-- Título -->
     <h1 class="text-2xl font-bold text-gray-800 dark:text-white">📊 Dashboard de Citas</h1>
     <div class="flex gap-2">
-      <Button><RouterLink to="/citas/nueva" class="btn-primary">+ Nueva Cita</RouterLink></Button>
+      <Button>
+        <RouterLink to="/citas/nueva" class="btn-primary ease-in-out hover:scale-105 hover:duration-300">+ Nueva Cita
+        </RouterLink>
+      </Button>
 
-      <Button><RouterLink to="/citas/calendario" class="btn-secondary">📅 Ver Calendario</RouterLink></Button>
+      <Button>
+        <RouterLink to="/citas/calendario" class="btn-secondary ease-in-out hover:scale-105 hover:duration-300">📅 Ver
+          Calendario</RouterLink>
+      </Button>
     </div>
 
     <!-- Totales -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <div
-        v-for="(valor, key) in resumenCards"
-        :key="key"
-        class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]"
-      >
+      <div v-for="(valor, key) in resumenCards" :key="key"
+        class="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]">
         <div class="flex items-end justify-between">
           <div>
             <span class="text-sm text-gray-500 dark:text-gray-400">{{ key }}</span>
@@ -35,14 +38,11 @@
             <p class="text-sm text-gray-700 dark:text-gray-300">
               <strong>{{ formatearFecha(cita.fecha) }}</strong> - {{ cita.cliente }}<br />
               <span class="text-xs text-gray-500">Servicios: {{ cita.servicios }}</span>
-              <span
-                class="ml-2 px-2 py-0.5 rounded-full text-xs"
-                :class="{
-                  'bg-yellow-100 text-yellow-800': cita.estado === 'pendiente',
-                  'bg-green-100 text-green-800': cita.estado === 'atendida',
-                  'bg-red-100 text-red-800': cita.estado === 'cancelada',
-                }"
-              >
+              <span class="ml-2 px-2 py-0.5 rounded-full text-xs" :class="{
+                'bg-yellow-100 text-yellow-800': cita.estado === 'pendiente',
+                'bg-green-100 text-green-800': cita.estado === 'atendida',
+                'bg-red-100 text-red-800': cita.estado === 'cancelada',
+              }">
                 {{ cita.estado }}
               </span>
             </p>

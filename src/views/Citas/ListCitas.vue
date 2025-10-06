@@ -10,33 +10,20 @@
       <!-- Filtros -->
       <div class="flex flex-col md:flex-row items-center justify-between mb-4 gap-4">
         <!-- Buscador -->
-        <input
-          v-model="filtroTexto"
-          type="text"
-          placeholder="Buscar por cliente o servicio..."
-          class="px-4 py-2 border rounded w-full md:w-1/3 dark:bg-gray-800 dark:text-white dark:border-gray-600"
-        />
+        <input v-model="filtroTexto" type="text" placeholder="Buscar por cliente o servicio..."
+          class="px-4 py-2 border rounded w-full md:w-1/3 dark:bg-gray-800 dark:text-white dark:border-gray-600" />
 
         <!-- Filtro de fechas -->
         <div class="flex gap-2 items-center">
-          <Datepicker
-            v-model="fechaInicio"
-            :locale="es"
-            placeholder="Desde"
-            class="border rounded px-2 py-1 dark:bg-gray-800 dark:text-white"
-          />
-          <Datepicker
-            v-model="fechaFin"
-            :locale="es"
-            placeholder="Hasta"
-            class="border rounded px-2 py-1 dark:bg-gray-800 dark:text-white"
-          />
+          <Datepicker v-model="fechaInicio" :locale="es" placeholder="Desde"
+            class="border rounded px-2 py-1 dark:bg-gray-800 dark:text-white" />
+          <Datepicker v-model="fechaFin" :locale="es" placeholder="Hasta"
+            class="border rounded px-2 py-1 dark:bg-gray-800 dark:text-white" />
         </div>
       </div>
 
       <div
-        class="overflow-visible rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
-      >
+        class="overflow-visible rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
         <table class="max-w-full overflow-x-auto custom-scrollbar">
           <thead>
             <tr class="border-b border-gray-200 dark:border-gray-700">
@@ -67,15 +54,11 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-            <tr
-              v-for="cita in citasPaginadas"
-              :key="cita.id"
-              class="border-t border-gray-100 dark:border-gray-800"
+            <tr v-for="cita in citasPaginadas" :key="cita.id" class="border-t border-gray-100 dark:border-gray-800"
               :class="{
                 'bg-gray-100 dark:bg-gray-700/30 line-through text-gray-500 dark:text-gray-400':
                   cita.estado === 'cancelada',
-              }"
-            >
+              }">
               <td class="px-5 py-4 sm:px-6">
                 <div class="flex items-center gap-3">
                   <div>
@@ -107,38 +90,26 @@
               <td class="px-4 py-2">
                 <!-- Estado con dropdown -->
                 <div class="relative inline-block text-left">
-                  <button
-                    v-if="cita.estado !== 'cancelada'"
-                    @click="toggleDropdown(cita)"
-                    class="inline-flex justify-center items-center px-3 py-1 rounded-full text-sm font-medium"
-                    :class="{
+                  <button v-if="cita.estado !== 'cancelada'" @click="toggleDropdown(cita)"
+                    class="inline-flex justify-center items-center px-3 py-1 rounded-full text-sm font-medium" :class="{
                       'bg-yellow-100 text-yellow-800': cita.estado === 'pendiente',
                       'bg-green-100 text-green-800': cita.estado === 'atendida',
                       'bg-red-100 text-red-800': cita.estado === 'cancelada',
-                    }"
-                  >
+                    }">
                     {{ capitalize(cita.estado) }}
                     <svg class="ml-2 h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                      <path
-                        fill-rule="evenodd"
+                      <path fill-rule="evenodd"
                         d="M5.23 7.21a.75.75 0 011.06.02L10 11.586l3.71-4.356a.75.75 0 111.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z"
-                        clip-rule="evenodd"
-                      />
+                        clip-rule="evenodd" />
                     </svg>
                   </button>
 
                   <!-- Dropdown -->
-                  <div
-                    v-if="cita.mostrandoDropdown"
-                    class="absolute z-10 mt-2 w-32 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5"
-                  >
+                  <div v-if="cita.mostrandoDropdown"
+                    class="absolute z-10 mt-2 w-32 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5">
                     <ul class="py-1 text-sm text-gray-700">
-                      <li
-                        v-for="estado in estados"
-                        :key="estado"
-                        @click="cambiarEstado(cita, estado)"
-                        class="block px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      >
+                      <li v-for="estado in estados" :key="estado" @click="cambiarEstado(cita, estado)"
+                        class="block px-4 py-2 hover:bg-gray-100 cursor-pointer">
                         {{ capitalize(estado) }}
                       </li>
                     </ul>
@@ -157,23 +128,15 @@
                 </div>
               </td>
               <td class="px-4 py-2">
-                <span v-if="cita.pagado" class="px-2 py-1 bg-red-600 text-white rounded text-sm"
-                  >Pagado</span
-                >
-                <button
-                  v-else-if="cita.estado !== 'cancelada'"
-                  @click="registrarPago(cita)"
-                  class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                >
+                <span v-if="cita.pagado" class="px-2 py-1 bg-red-600 text-white rounded text-sm">Pagado</span>
+                <button v-else-if="cita.estado !== 'cancelada'" @click="registrarPago(cita)"
+                  class="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">
                   Pagar
                 </button>
               </td>
               <td class="px-4 py-2 space-x-2">
-                <button
-                  v-if="cita.estado !== 'cancelada'"
-                  @click="solicitarEliminacionCita(cita)"
-                  class="text-red-500 hover:underline"
-                >
+                <button v-if="cita.estado !== 'cancelada'" @click="solicitarEliminacionCita(cita)"
+                  class="text-red-500 hover:underline ease-in-out hover:scale-125 hover:duration-300 ">
                   🗑️
                 </button>
               </td>
@@ -186,18 +149,11 @@
           </div>
 
           <div class="flex gap-2">
-            <button
-              :disabled="paginaActual === 1"
-              @click="paginaActual--"
-              class="px-3 py-1 rounded border text-sm"
-            >
+            <button :disabled="paginaActual === 1" @click="paginaActual--" class="px-3 py-1 rounded border text-sm">
               ← Anterior
             </button>
-            <button
-              :disabled="paginaActual === totalPaginas"
-              @click="paginaActual++"
-              class="px-3 py-1 rounded border text-sm"
-            >
+            <button :disabled="paginaActual === totalPaginas" @click="paginaActual++"
+              class="px-3 py-1 rounded border text-sm">
               Siguiente →
             </button>
           </div>
@@ -210,18 +166,13 @@
               </h3>
               <p class="text-gray-600 dark:text-gray-400 mb-6">
                 ¿Estás seguro de que deseas eliminar la cita de
-                <strong>{{ citaAEliminar?.cliente_nombre }}</strong
-                >?
+                <strong>{{ citaAEliminar?.cliente_nombre }}</strong>?
               </p>
               <div class="flex justify-center gap-4">
                 <Button variant="secondary" class="dark:text-white" @click="closeDeleteCitaModal">
                   Cancelar
                 </Button>
-                <Button
-                  variant="destructive"
-                  class="dark:text-white"
-                  @click="confirmarEliminacionCita"
-                >
+                <Button variant="destructive" class="dark:text-white" @click="confirmarEliminacionCita">
                   Eliminar
                 </Button>
               </div>
@@ -428,10 +379,12 @@ async function registrarPago(cita) {
 </script>
 <style>
 .vue-notification.success {
-  color: #041f0e; /* verde oscuro */
+  color: #041f0e;
+  /* verde oscuro */
 }
 
 .vue-notification.error {
-  color: #b91c1c; /* rojo fuerte */
+  color: #b91c1c;
+  /* rojo fuerte */
 }
 </style>
