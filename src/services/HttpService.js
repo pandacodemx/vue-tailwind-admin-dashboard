@@ -1,4 +1,4 @@
-const baseUrl = 'http://localhost/sistema-barberia/vue-tailwind-admin-dashboard/api'
+const baseUrl = 'http://localhost/vue-tailwind-admin-dashboard/api'
 
 export default {
   get: async (url) => {

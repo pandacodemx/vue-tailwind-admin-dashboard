@@ -203,11 +203,6 @@ const menuGroups = [
         path: "/servicios",
       },
 
-      {
-        icon: UserCircleIcon,
-        name: "Paquetes",
-        path: "/paquetes",
-      },
 
     ],
   },

@@ -7,7 +7,7 @@
         <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Agrega productos y completa la transacción</p>
       </div>
       <div class="text-right">
-        <div class="text-2xl font-bold text-green-600">${{ totalVenta }}</div>
+        <div class="text-2xl font-bold text-green-600">${{ totalVenta.toFixed(2) }}</div>
         <div class="text-sm text-gray-500 dark:text-gray-400">Total de la venta</div>
       </div>
     </div>
@@ -21,10 +21,43 @@
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Buscar Producto
           </label>
-          <Multiselect v-model="productoSeleccionado" :options="productos"
+          <Multiselect 
+            v-model="productoSeleccionado" 
+            :options="productos"
             :custom-label="(c) => `${c.nombre} - $${c.precio} (Stock: ${c.stock})`"
-            placeholder="Selecciona o busca un producto..." track-by="id" :searchable="true" :sort-by="['nombre']"
-            :sort-direction="'asc'" class="multiselect-custom" />
+            placeholder="Selecciona o busca un producto..." 
+            track-by="id" 
+            :searchable="true" 
+            :sort-by="['nombre']"
+            :sort-direction="'asc'" 
+            class="multiselect-custom"
+          >
+            <template #option="{ option }">
+              <div class="flex items-center gap-3 py-2">
+                <div class="flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-600">
+                  <img 
+                    v-if="option.imagen" 
+                    :src="getImageUrl(option.imagen)" 
+                    :alt="option.nombre"
+                    class="w-full h-full object-cover"
+                  >
+                  <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                  </div>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {{ option.nombre }}
+                  </div>
+                  <div class="text-sm text-gray-500 dark:text-gray-400">
+                    ${{ option.precio }} • Stock: {{ option.stock }}
+                  </div>
+                </div>
+              </div>
+            </template>
+          </Multiselect>
         </div>
 
         <div class="lg:col-span-3">
@@ -59,13 +92,33 @@
       <!-- Info del producto seleccionado -->
       <div v-if="productoSeleccionado"
         class="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-        <div class="flex justify-between items-center">
-          <span class="text-sm font-medium text-blue-800 dark:text-blue-300">
-            {{ productoSeleccionado.nombre }}
-          </span>
-          <span class="text-sm text-blue-600 dark:text-blue-400">
-            Stock: {{ productoSeleccionado.stock }} | Precio: ${{ productoSeleccionado.precio }}
-          </span>
+        <div class="flex items-center gap-3">
+          <div class="flex-shrink-0 w-12 h-12 rounded-lg overflow-hidden bg-white dark:bg-gray-600 border border-gray-200 dark:border-gray-600">
+            <img 
+              v-if="productoSeleccionado.imagen" 
+              :src="getImageUrl(productoSeleccionado.imagen)" 
+              :alt="productoSeleccionado.nombre"
+              class="w-full h-full object-cover"
+            >
+            <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
+            </div>
+          </div>
+          <div class="flex-1">
+            <div class="flex justify-between items-center">
+              <span class="text-sm font-medium text-blue-800 dark:text-blue-300">
+                {{ productoSeleccionado.nombre }}
+              </span>
+              <span class="text-sm text-blue-600 dark:text-blue-400">
+                Stock: {{ productoSeleccionado.stock }} | Precio: ${{ productoSeleccionado.precio }}
+              </span>
+            </div>
+            <div class="text-xs text-blue-600 dark:text-blue-400 mt-1">
+              Subtotal: ${{ (productoSeleccionado.precio * cantidad).toFixed(2) }}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -95,24 +148,19 @@
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-700/50">
             <tr>
-              <th
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Producto
               </th>
-              <th
-                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Precio Unit.
               </th>
-              <th
-                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Cantidad
               </th>
-              <th
-                class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Subtotal
               </th>
-              <th
-                class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Acciones
               </th>
             </tr>
@@ -121,7 +169,22 @@
             <tr v-for="(item, index) in venta.productos" :key="index"
               class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
               <td class="px-6 py-4 whitespace-nowrap">
-                <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.nombre }}</div>
+                <div class="flex items-center gap-3">
+                  <div class="flex-shrink-0 w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-600 border border-gray-200 dark:border-gray-600">
+                    <img 
+                      v-if="item.imagen" 
+                      :src="getImageUrl(item.imagen)" 
+                      :alt="item.nombre"
+                      class="w-full h-full object-cover"
+                    >
+                    <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="text-sm font-medium text-gray-900 dark:text-white">{{ item.nombre }}</div>
+                </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-right text-sm text-gray-900 dark:text-white">
                 ${{ item.precio.toFixed(2) }}
@@ -173,17 +236,58 @@
       </div>
 
       <div class="flex gap-3">
-        <button @click="limpiarVenta" :disabled="venta.productos.length === 0"
+        <button @click="limpiarVenta" :disabled="venta.productos.length === 0 || guardandoVenta"
           class="px-6 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
           Limpiar
         </button>
-        <button @click="guardarVenta" :disabled="venta.productos.length === 0"
-          class="px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-green-500/25">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-          </svg>
-          Finalizar Venta
+        
+        <!-- Botón Finalizar Venta con Loading -->
+        <button 
+          @click="guardarVenta" 
+          :disabled="venta.productos.length === 0 || guardandoVenta"
+          class="px-8 py-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 shadow-lg shadow-green-500/25 relative overflow-hidden"
+        >
+          <!-- Spinner de loading -->
+          <div v-if="guardandoVenta" class="absolute inset-0 flex items-center justify-center bg-green-600">
+            <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+          </div>
+          
+          <!-- Contenido del botón -->
+          <div class="flex items-center gap-2" :class="{ 'opacity-0': guardandoVenta }">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            {{ guardandoVenta ? 'Procesando...' : 'Finalizar Venta' }}
+          </div>
         </button>
+      </div>
+    </div>
+
+    <!-- Overlay de loading -->
+    <div v-if="guardandoVenta" class="fixed inset-0 bg-gray-700/25 bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white dark:bg-gray-800 rounded-xl p-8 max-w-sm w-full mx-4 shadow-2xl">
+        <div class="text-center">
+          <!-- Spinner animado -->
+          <div class="flex justify-center mb-4">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+          </div>
+          
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2">
+            Procesando Venta
+          </h3>
+          <p class="text-gray-600 dark:text-gray-400 text-sm">
+            Guardando información y generando ticket...
+          </p>
+          
+          <!-- Progress bar -->
+          <div class="mt-4 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+            <div class="bg-green-600 h-2 rounded-full animate-pulse"></div>
+          </div>
+          
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            Por favor espere
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -196,14 +300,23 @@ import Multiselect from 'vue-multiselect'
 import 'vue-multiselect/dist/vue-multiselect.min.css'
 import { notify } from '@kyvg/vue3-notification'
 
+const BASE_URL = 'http://localhost/vue-tailwind-admin-dashboard'
+
 const productos = ref([])
 const productoSeleccionado = ref(null)
 const cantidad = ref(1)
 const metodoPago = ref('efectivo')
+const guardandoVenta = ref(false) // Estado de loading
 
 const venta = ref({
   productos: [],
 })
+
+const getImageUrl = (imagePath) => {
+  if (!imagePath) return null
+  if (imagePath.startsWith('http')) return imagePath
+  return `${BASE_URL}/${imagePath.replace(/^\//, '')}`
+}
 
 const totalVenta = computed(() =>
   venta.value.productos.reduce((acc, p) => acc + p.precio * p.cantidad, 0),
@@ -250,6 +363,7 @@ function agregarProducto() {
       nombre: productoSeleccionado.value.nombre,
       precio: Number(productoSeleccionado.value.precio),
       cantidad: cantidad.value,
+      imagen: productoSeleccionado.value.imagen
     })
   }
 
@@ -268,7 +382,9 @@ function limpiarVenta() {
 }
 
 async function guardarVenta() {
-  if (venta.value.productos.length === 0) return
+  if (venta.value.productos.length === 0 || guardandoVenta.value) return
+
+  guardandoVenta.value = true
 
   const payload = {
     productos: venta.value.productos,
@@ -277,6 +393,9 @@ async function guardarVenta() {
   }
 
   try {
+    // Simular un pequeño delay para que se vea el loading
+    await new Promise(resolve => setTimeout(resolve, 500))
+
     const res = await HttpService.post('/ventas/crear.php', payload)
 
     if (res.success) {
@@ -288,6 +407,9 @@ async function guardarVenta() {
         productos: venta.value.productos,
       }
 
+      // Simular tiempo de generación del ticket
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
       imprimirTicket(ventaData)
       notify({
         title: 'Venta registrada',
@@ -305,6 +427,8 @@ async function guardarVenta() {
       text: 'No se pudo guardar la venta.',
       type: 'error',
     })
+  } finally {
+    guardandoVenta.value = false
   }
 }
 
@@ -350,7 +474,6 @@ function imprimirTicket(venta) {
         <tr>
           <th class="left">Producto</th>
           <th class="right">Cant</th>
-          <th class="right">P/U</th>
           <th class="right">Total</th>
         </tr>
       </thead>
@@ -362,7 +485,6 @@ function imprimirTicket(venta) {
       <tr>
         <td class="left">${p.nombre}</td>
         <td class="right">${p.cantidad}</td>
-        <td class="right">$${Number(p.precio).toFixed(2)}</td>
         <td class="right">$${(p.precio * p.cantidad).toFixed(2)}</td>
       </tr>
     `;
@@ -386,3 +508,16 @@ function imprimirTicket(venta) {
   ventana.close();
 }
 </script>
+
+<style scoped>
+
+/* Animación para el spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+</style>

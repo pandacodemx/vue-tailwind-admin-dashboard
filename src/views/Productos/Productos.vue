@@ -191,7 +191,7 @@ const porPagina = 10
 const fileInput = ref(null)
 const imagenPrevia = ref(null)
 const archivoSeleccionado = ref(null)
-const baseUrl = 'http://localhost/sistema-barberia/vue-tailwind-admin-dashboard/'
+const baseUrl = 'http://localhost/vue-tailwind-admin-dashboard/'
 
 const productosFiltrados = computed(() =>
   productos.value.filter((producto) =>

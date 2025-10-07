@@ -30,7 +30,7 @@
               <div class="size-20 rounded overflow-hidden group cursor-pointer relative"
                 @click="abrirModalImagen(producto)">
                 <img v-if="producto.imagen"
-                  :src="`http://localhost/sistema-barberia/vue-tailwind-admin-dashboard/${producto.imagen}`"
+                  :src="`http://localhost/vue-tailwind-admin-dashboard/${producto.imagen}`"
                   :alt="producto.nombre"
                   class="w-full h-full object-cover transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg">
                 <div v-else
@@ -123,7 +123,7 @@ const productoSeleccionado = ref(null)
 const abrirModalImagen = (producto) => {
   if (producto.imagen) {
     productoSeleccionado.value = producto
-    imagenAmpliada.value = `http://localhost/sistema-barberia/vue-tailwind-admin-dashboard/${producto.imagen}`
+    imagenAmpliada.value = `http://localhost/vue-tailwind-admin-dashboard/${producto.imagen}`
     modalImagenAbierto.value = true
   }
 }
